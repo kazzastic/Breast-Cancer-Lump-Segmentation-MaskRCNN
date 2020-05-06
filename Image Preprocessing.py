@@ -80,9 +80,9 @@ np.random.seed(1234)
 # PATH_TO_ROI_CSV_LABELS = '/home/jlandesman/data/cbis-ddsm/calc_case_description_train_set.csv'
 
 
-PATH_TO_FILES = 'calc_training_full_mammogram_images/'
-PATH_TO_ROI = 'calc_training_full_roi_images/'
-PATH_TO_ROI_CSV_LABELS = 'calc_case_description_train_set.csv'
+PATH_TO_FILES = '/media/kazzastic/C08EBCFB8EBCEAD4/Mammogram_sorted/calc-test/'
+PATH_TO_ROI = '/media/kazzastic/C08EBCFB8EBCEAD4/ROI_sorted/calc-test'
+PATH_TO_ROI_CSV_LABELS = 'calc_case_description_test_set.csv'
 
 CALC_TARGET_RESIZE = np.array([2750, 1500])
 MASS_TARGET_RESIZE = np.array([1100, 600])
@@ -133,7 +133,7 @@ def get_labels(path_to_csv):
         a data frame containing the file_name (as an index) and the pathology.  
     '''
     df = pd.read_csv(path_to_csv)
-    df['file_name'] = 'Calc-Training_' + df['patient_id'] + '_' + df['left or right breast'] + \
+    df['file_name'] = 'Calc-Test_' + df['patient_id'] + '_' + df['left or right breast'] + \
         '_' + df['image view'] + '_' + \
         df['abnormality id'].astype(str) + '_mask.png'
     df = df[['file_name', 'pathology']]
