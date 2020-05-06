@@ -82,7 +82,7 @@ np.random.seed(1234)
 
 PATH_TO_FILES = '/media/kazzastic/C08EBCFB8EBCEAD4/Mammogram_sorted/calc-test/'
 PATH_TO_ROI = '/media/kazzastic/C08EBCFB8EBCEAD4/ROI_sorted/calc-test'
-PATH_TO_ROI_CSV_LABELS = 'calc_case_description_test_set.csv'
+PATH_TO_ROI_CSV_LABELS = 'csv/calc_case_description_test_set.csv'
 
 CALC_TARGET_RESIZE = np.array([2750, 1500])
 MASS_TARGET_RESIZE = np.array([1100, 600])
