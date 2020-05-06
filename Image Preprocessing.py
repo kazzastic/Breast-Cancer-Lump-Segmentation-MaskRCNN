@@ -74,15 +74,15 @@ from PIL import Image
 
 
 np.random.seed(1234)
+
 # PATH_TO_FILES = '/home/jlandesman/data/cbis-ddsm/calc_training_full_mammogram_images/'
 # PATH_TO_ROI = '/home/jlandesman/data/cbis-ddsm/calc_training_full_roi_images/'
 # PATH_TO_ROI_CSV_LABELS = '/home/jlandesman/data/cbis-ddsm/calc_case_description_train_set.csv'
 
-global kazim
-kazim = 0
-PATH_TO_FILES = '/media/kazzastic/C08EBCFB8EBCEAD4/Mammogram_sorted/calc-test'
-PATH_TO_ROI = '/media/kazzastic/C08EBCFB8EBCEAD4/ROI_sorted/calc-test'
-PATH_TO_ROI_CSV_LABELS = 'calc_case_description_test_set.csv'
+
+PATH_TO_FILES = 'calc_training_full_mammogram_images/'
+PATH_TO_ROI = 'calc_training_full_roi_images/'
+PATH_TO_ROI_CSV_LABELS = 'calc_case_description_train_set.csv'
 
 CALC_TARGET_RESIZE = np.array([2750, 1500])
 MASS_TARGET_RESIZE = np.array([1100, 600])
@@ -133,12 +133,11 @@ def get_labels(path_to_csv):
         a data frame containing the file_name (as an index) and the pathology.  
     '''
     df = pd.read_csv(path_to_csv)
-    df['file_name'] = 'Calc-Test_' + df['patient_id'] + '_' + df['left or right breast'] + \
+    df['file_name'] = 'Calc-Training_' + df['patient_id'] + '_' + df['left or right breast'] + \
         '_' + df['image view'] + '_' + \
         df['abnormality id'].astype(str) + '_mask.png'
     df = df[['file_name', 'pathology']]
     df.set_index('file_name', inplace=True)
-
     return df
 
 
@@ -156,8 +155,9 @@ def get_mask_list():
     df = get_labels(PATH_TO_ROI_CSV_LABELS)
 
     for file_name in roi_files:
-        mask_list[file_name[:-11]].append((file_name, df.loc[file_name]['pathology']))
-        print(mask_list)
+        mask_list[file_name[:-11]
+                  ].append((file_name, df.loc[file_name]['pathology']))
+
     # print('mask_list:'+mask_list)
     return mask_list
 
@@ -200,7 +200,7 @@ def normalize(im):
     '''
     Normalize to between 0 and 255
     '''
-    im_normalized = (255*(im ^ np.max(im))/-np.ptp(im))
+    im_normalized = (255*(im - np.max(im))/-np.ptp(im))
     return im_normalized
 
 ###################################################################
@@ -218,16 +218,20 @@ def get_patches(im, step_size=20, dimensions=[256, 256], is_memogram=False):
         step_size: the stride by which the window jumps
         dimemsions: the dimensions of the patch
     '''
-    '''
+    #if is_memogram:
+    #    dimensions = [2750, 1500]
     arr_shape = np.array(im.shape)
     h,w = arr_shape[0], arr_shape[1]
     
     if(h < 256 or w < 256):
-        im = cv2.resize(im, (300, 300), interpolation=cv2.INTER_NEAREST)
-    '''
+        im = cv2.resize(im, (300, 300), interpolation = cv2.INTER_NEAREST)
+    
+    #if(h < 256 or w < 256):
+    #    im = cv2.resize(im, (256, 256))
+    
     patches = view_as_windows(im, dimensions, step=step_size)
     patches = patches.reshape([-1, dimensions[0], dimensions[1]])
-
+    print("end")
     return patches
 
 
@@ -266,9 +270,6 @@ def get_zipped_patches(mammogram, roi, step_size, quartile_cutoff=10, filter_roi
         print(mask)
         print('roi:', roi)
         # Apply mask
-        global kazim
-        kazim +=1
-        print("I was here {}".format(kazim))
         mammogram = mammogram[mask[0], :, :]
         # roi = roi[mask[0], :, :]
 
