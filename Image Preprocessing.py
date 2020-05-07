@@ -250,8 +250,8 @@ def get_zipped_patches(mammogram, roi, step_size, quartile_cutoff=10, filter_roi
         #print('Filtering with ROI: ', roi)
         patch_means = np.mean(roi, axis=(1, 2))
         mask = np.where(patch_means > 0)
-        print("Mammogram shape", mammogram.shape)
-        print("The mask shape " ,mask[0].shape)
+        #print("Mammogram shape", mammogram.shape)
+        #print("The mask shape " ,mask[0])
         # filter
         mammogram = mammogram[mask[0], :, :]
         roi = roi[mask[0], :, :]
@@ -271,7 +271,7 @@ def get_zipped_patches(mammogram, roi, step_size, quartile_cutoff=10, filter_roi
         #print('roi:', roi)
         # Apply mask
         #print("Mammogram shape", mammogram.shape)
-        #print("The mask shape " ,mask[0].shape)
+        #print("The mask shape " ,mask[0])
         mammogram = mammogram[mask[0], :, :]
         roi = roi[mask[0], :, :]
 
