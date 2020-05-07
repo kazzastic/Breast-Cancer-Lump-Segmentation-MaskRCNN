@@ -81,7 +81,7 @@ np.random.seed(1234)
 
 
 PATH_TO_FILES = '/media/kazzastic/C08EBCFB8EBCEAD4/Mammogram_sorted/calc-test/'
-PATH_TO_ROI = '/media/kazzastic/C08EBCFB8EBCEAD4/ROI_sorted/calc-test'
+PATH_TO_ROI = '/media/kazzastic/C08EBCFB8EBCEAD4/ROI_sorted/calc-test/'
 PATH_TO_ROI_CSV_LABELS = 'csv/calc_case_description_test_set.csv'
 
 CALC_TARGET_RESIZE = np.array([2750, 1500])
@@ -253,6 +253,7 @@ def get_zipped_patches(mammogram, roi, step_size, quartile_cutoff=10, filter_roi
         #print("Mammogram shape", mammogram.shape)
         #print("The mask shape " ,mask[0])
         # filter
+        print("mammogram", mammogram.shape)
         mammogram = mammogram[mask[0], :, :]
         roi = roi[mask[0], :, :]
 
