@@ -155,10 +155,8 @@ def get_mask_list():
     df = get_labels(PATH_TO_ROI_CSV_LABELS)
 
     for file_name in roi_files:
-        mask_list[file_name[:-11]
-                  ].append((file_name, df.loc[file_name]['pathology']))
-
-    # print('mask_list:'+mask_list)
+        mask_list[file_name[:-11]].append((file_name, df.loc[file_name]['pathology']))
+    
     return mask_list
 
 
@@ -307,16 +305,16 @@ def save_patches(zipped_patches, label, save_file_name):
 
         elif patch[1].mean() > 0:  # If this is in the tumor
             if label == 'MALIGNANT':
-                save_path = 'data/patches/calcification/malignant'
+                save_path = '/media/kazzastic/500 GB Samsung External HDD/data/patches/calcification/malignant'
 
             elif label == 'BENIGN':
-                save_path = 'data/patches/calcification/benign'
+                save_path = '/media/kazzastic/500 GB Samsung External HDD/data/patches/calcification/benign'
 
             else:
-                save_path = 'data/patches/calcification/benign_no_callback'
+                save_path = '/media/kazzastic/500 GB Samsung External HDD/data/patches/calcification/benign_no_callback'
 
         else:  # Not in the tumor
-            save_path = 'data/patches/calcification/no_tumor'
+            save_path = '/media/kazzastic/500 GB Samsung External HDD/data/patches/calcification/no_tumor'
 
         file_name = save_file_name + "_" + str(number)  # + ".png"
 
