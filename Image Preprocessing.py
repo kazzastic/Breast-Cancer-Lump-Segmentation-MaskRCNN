@@ -305,16 +305,16 @@ def save_patches(zipped_patches, label, save_file_name):
 
         elif patch[1].mean() > 0:  # If this is in the tumor
             if label == 'MALIGNANT':
-                save_path = '/media/kazzastic/500 GB Samsung External HDD/data/patches/calcification/malignant'
+                save_path = '/media/kazzastic/C08EBCFB8EBCEAD4/data/patches/calcification/malignant'
 
             elif label == 'BENIGN':
-                save_path = '/media/kazzastic/500 GB Samsung External HDD/data/patches/calcification/benign'
+                save_path = '/media/kazzastic/C08EBCFB8EBCEAD4/data/patches/calcification/benign'
 
             else:
-                save_path = '/media/kazzastic/500 GB Samsung External HDD/data/patches/calcification/benign_no_callback'
+                save_path = '/media/kazzastic/C08EBCFB8EBCEAD4/data/patches/calcification/benign_no_callback'
 
         else:  # Not in the tumor
-            save_path = '/media/kazzastic/500 GB Samsung External HDD/data/patches/calcification/no_tumor'
+            save_path = '/media/kazzastic/C08EBCFB8EBCEAD4/data/patches/calcification/no_tumor'
 
         file_name = save_file_name + "_" + str(number)  # + ".png"
 
