@@ -20,9 +20,7 @@ import logging
 from collections import OrderedDict
 import numpy as np
 import scipy.misc
-#import tensorflow as tf
-import tensorflow.compat.v1 as tf
-tf.disable_v2_behavior()
+import tensorflow as tf
 import keras
 import keras.backend as K
 import keras.layers as KL
@@ -314,7 +312,7 @@ class ProposalLayer(KE.Layer):
 
 def log2_graph(x):
     """Implementatin of Log2. TF doesn't have a native implemenation."""
-    return tf.log(x) / tf.log(2.0)
+    return tf.math.log(x) / tf.math.log(2.0)
 
 
 class PyramidROIAlign(KE.Layer):
@@ -1933,7 +1931,7 @@ class MaskRCNN():
             layer = self.keras_model.get_layer(name)
             if layer.output in self.keras_model.losses:
                 continue
-            self.keras_model.add_loss(tf.reduce_mean(layer.output, keep_dims=True))
+            self.keras_model.add_loss(tf.reduce_mean(layer.output, keepdims=True))
 
         # Add L2 Regularization
         reg_losses = [keras.regularizers.l2(self.config.WEIGHT_DECAY)(w)
@@ -1950,7 +1948,7 @@ class MaskRCNN():
             layer = self.keras_model.get_layer(name)
             self.keras_model.metrics_names.append(name)
             self.keras_model.metrics_tensors.append(tf.reduce_mean(layer.output,
-                                                    keep_dims=True))
+                                                    keepdims=True))
 
     def set_trainable(self, layer_regex, keras_model=None, indent=0, verbose=1):
         """Sets model layers as trainable if their names match
