@@ -15,7 +15,6 @@ import numpy as np
 import tensorflow as tf
 import scipy.misc
 import skimage.color
-import cv2
 
 
 ############################################################
@@ -168,8 +167,8 @@ def box_refinement_graph(box, gt_box):
 
     dy = (gt_center_y - center_y) / height
     dx = (gt_center_x - center_x) / width
-    dh = tf.math.log(gt_height / height)
-    dw = tf.math.log(gt_width / width)
+    dh = tf.log(gt_height / height)
+    dw = tf.log(gt_width / width)
 
     result = tf.stack([dy, dx, dh, dw], axis=1)
     return result
@@ -391,7 +390,7 @@ def resize_image(image, min_dim=None, max_dim=None, padding=False):
             scale = max_dim / image_max
     # Resize image and mask
     if scale != 1:
-        image = cv2.resize(
+        image = scipy.misc.imresize(
             image, (round(h * scale), round(w * scale)))
     # Need padding?
     if padding:
