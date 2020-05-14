@@ -3,3 +3,4 @@ dat
 da
 /training/mask_rcnn_balloon.h5
 /training/data/
+/training/logs/
