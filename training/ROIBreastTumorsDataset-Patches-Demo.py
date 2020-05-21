@@ -39,6 +39,10 @@ MODEL_DIR = os.path.join(ROOT_DIR, "logs")
 # Path to COCO trained weights
 COCO_MODEL_PATH = os.path.join(ROOT_DIR, "mask_rcnn_balloon.h5")
 
+# For searching in the string 
+CC = 'CC'
+MLO = 'MLO'
+
 
 # In[3]:
 
@@ -180,20 +184,24 @@ class BreastTumorsDataset(utils.Dataset):
         
         image_dir, imagefile = os.path.split(imagepath)
         imagefilename, ext = os.path.splitext(imagefile)
-        print("Imagefile:{}".format(imagefilename))
-        if(imagefilename.find('CC') != 1):
-            imagefilename, _ = imagefilename.split('CC')
-            imagefilename+='CC'
+        var = imagefilename
+        print("Imagefile:{}".format(var))
+        if(CC in var):
+            var, _ = var.split('CC')
+            var+='CC'
+        elif(MLO in var):
+            var, _ = var.split('MLO')
+            var+='MLO'
         else:
-            imagefilename, _ = imagefilename.split('MLO')
-            imagefilename+='MLO'
-        prefix, patient_id1, patient_id2, side, viewsuffix = imagefilename.split('_')
+            pass
+            
+        temp = var
+        var_4_pathology = var
+        print("Imagefile But Better:{}".format(temp))
+        prefix, patient_id1, patient_id2, side, viewsuffix = temp.split('_')
         #view, abn, angle, patch_width, patch_height, hstride, vstride, row, column, pathology = viewsuffix.split('-')
-        patient_id = patient_id1 + '_' + patient_id2
-        csv = pd.read_csv('../csv/calc_case_description_test_set.csv')
-        
+        #patient_id = patient_id1 + '_' + patient_id2        
         #abn_num = abn[1:]
-        
         #maskfile = prefix + '_' + \
         #            patient_id + '_' + \
         #            side + '_' + \
@@ -211,20 +219,23 @@ class BreastTumorsDataset(utils.Dataset):
         #            pathology + ext
         
         #maskfile = os.path.join(self.mask_dir1,prefix+'_'+patient_id1+'_'+patient_id2+'_'+side+'_'+viewsuffix+'_mask.png')
-        maskfile = csv[csv['image file path'].str.contains(imagefile)]
+        csv = pd.read_csv('../csv/calc_case_description_test_set.csv')
+        maskfile = csv[csv['image file path'].str.contains(temp)]
         maskfile = maskfile['ROI mask file path'].to_frame().iloc[0][0].split('/')
-        maskfile+='_mask.png'
+        maskfile[0]+='_mask.png'
         print("Maskfile:{}".format(maskfile[0]))
 
         # Load mask
-        mask = cv2.imread(maskfile)
+        path_for_mask = '/media/kazzastic/C08EBCFB8EBCEAD4/Calc_training_full_roi_images/'
+        mask = cv2.imread(path_for_mask+maskfile[0])
         
         # If grayscale. Convert to RGB for consistency.
-        if mask.ndim != 3:
-            mask = skimage.color.gray2rgb(mask)
-
+        #if mask.ndim != 3:
+        #    mask = skimage.color.gray2rgb(mask)
+        pathology = csv[csv['image file path'].str.contains(var_4_pathology)]
+        pathology = pathology['pathology'].to_frame().iloc[0][0]
         # Map class names to class IDs.
-        if pathology == 'm':
+        if pathology == 'MALIGNANT':
             class_ids = np.array([3, 3, 3])
         else:
             class_ids = np.array([2, 2, 2])
