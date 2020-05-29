@@ -16,9 +16,6 @@
 # In[1]:
 
 
-from __future__ import division
-import scipy.misc
-from skimage import io, exposure, img_as_uint, img_as_float
 import math
 import cv2
 from collections import defaultdict
@@ -31,7 +28,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from PIL import Image
-# get_ipython().run_line_magic('matplotlib', 'inline')
 
 
 # ## From the paper
@@ -75,11 +71,6 @@ from PIL import Image
 
 np.random.seed(1234)
 
-# PATH_TO_FILES = '/home/jlandesman/data/cbis-ddsm/calc_training_full_mammogram_images/'
-# PATH_TO_ROI = '/home/jlandesman/data/cbis-ddsm/calc_training_full_roi_images/'
-# PATH_TO_ROI_CSV_LABELS = '/home/jlandesman/data/cbis-ddsm/calc_case_description_train_set.csv'
-
-
 PATH_TO_FILES = '/media/kazzastic/C08EBCFB8EBCEAD4/Mammogram_sorted/calc-test/'
 PATH_TO_ROI = '/media/kazzastic/C08EBCFB8EBCEAD4/ROI_sorted/calc-test/'
 PATH_TO_ROI_CSV_LABELS = 'csv/calc_case_description_test_set.csv'
@@ -116,6 +107,7 @@ def get_im_as_array(file_name, file_type):
         pass
 
     file_path = os.path.join(path, file_name)
+    print(file_path)
     im = Image.open(file_path)
     return np.asarray(im)
 
@@ -141,10 +133,6 @@ def get_labels(path_to_csv):
     return df
 
 
-# print(get_labels(PATH_TO_ROI_CSV_LABELS))
-# get_labels(PATH_TO_ROI_CSV_LABELS)
-
-
 def get_mask_list():
     '''
     Associate each file with all of its masses and their pathology (benign, malignant, other).
@@ -156,11 +144,11 @@ def get_mask_list():
 
     for file_name in roi_files:
         mask_list[file_name[:-11]].append((file_name, df.loc[file_name]['pathology']))
-    
+
+    #print('mask_list:'+mask_list)
     return mask_list
 
 
-# print(get_mask_list())
 ###################################################################
 # Image transformations
 ###################################################################
@@ -206,7 +194,7 @@ def normalize(im):
 ###################################################################
 
 
-def get_patches(im, step_size=20, dimensions=[256, 256], is_memogram=False):
+def get_patches(im, step_size=20, dimensions=[256, 256]):
     '''
     Return sliding windows along the breast, moving STEP_SIZE pixels at a time.
 
@@ -216,20 +204,9 @@ def get_patches(im, step_size=20, dimensions=[256, 256], is_memogram=False):
         step_size: the stride by which the window jumps
         dimemsions: the dimensions of the patch
     '''
-    #if is_memogram:
-    #    dimensions = [2750, 1500]
-    '''
-    arr_shape = np.array(im.shape)
-    h,w = arr_shape[0], arr_shape[1]
-    
-    if(h < 256 or w < 256):
-        im = cv2.resize(im, (300, 300), interpolation = cv2.INTER_NEAREST)
-    '''
-    #if(h < 256 or w < 256):
-    #    im = cv2.resize(im, (256, 256))
-    
     patches = view_as_windows(im, dimensions, step=step_size)
-    patches = patches.reshape([-1, dimensions[0], dimensions[1]])
+    patches = patches.reshape([-1, 256, 256])
+
     return patches
 
 
@@ -240,18 +217,18 @@ def get_zipped_patches(mammogram, roi, step_size, quartile_cutoff=10, filter_roi
     Looks at each patch and drops bottom 25% by average value (average of the whole image, black = 0)
 
     '''
-    mammogram = get_patches(mammogram, step_size, is_memogram=True)
+    mammogram = get_patches(mammogram, step_size)
     roi = get_patches(roi, step_size)
 
     if filter_roi:
         # On images with more than one ROI, don't repeatedly save the same regions OUTSIDE that ROI.
-        #print('Filtering with ROI: ', roi)
+        print('Filtering with ROI: ', roi_img)
         patch_means = np.mean(roi, axis=(1, 2))
         mask = np.where(patch_means > 0)
-        #print("Mammogram shape", mammogram.shape)
-        #print("The mask shape " ,mask[0])
+
         # filter
-        print("mammogram", mammogram.shape)
+        print(mammogram.shape)
+        print(mask[0])
         mammogram = mammogram[mask[0], :, :]
         roi = roi[mask[0], :, :]
 
@@ -267,15 +244,13 @@ def get_zipped_patches(mammogram, roi, step_size, quartile_cutoff=10, filter_roi
 
         # Note mask is GREATER THAN cutoff
         mask = np.where(patch_means > percentile_cutoff)
-        #print('roi:', roi)
+
         # Apply mask
-        #print("Mammogram shape", mammogram.shape)
-        #print("The mask shape " ,mask[0])
         mammogram = mammogram[mask[0], :, :]
         roi = roi[mask[0], :, :]
 
     print('Patches array shape after optimization: ', mammogram.shape)
-
+    print("Roi shape: ", roi.shape)
     return zip(mammogram, roi)
 
 ###################################################################
@@ -290,31 +265,38 @@ def save_patches(zipped_patches, label, save_file_name):
 
     # Basic logging/ error checking
     errors = []
-    num_original = 0
-    num_rotate = 0
-    num_flip = 0
-    num_resize = 0
-    num_not_breast = 0
+    num_original_memmogram = 0
+    num_rotate_memmogram = 0
+    num_flip_memmogram = 0
+    num_resize_memmogram = 0
+    num_not_breast_memmogram = 0
+    num_original_roi = 0
+    num_rotate_roi = 0
+    num_flip_roi = 0
+    num_resize_roi = 0
+    num_not_breast_roi = 0
 
+    # print("zipped patches: ", list(zipped_patches))
     # Recall that zipped_patches = zip(original, roi), where each dim is [-1, 256, 256]
     for number, patch in enumerate(zipped_patches):
         # If the mean of the image patch = 0, then its purely black and not helpful
         if patch[0].mean() == MASK_CUTOFF:
-            num_not_breast += 1
+            num_not_breast_memmogram += 1
             continue  # Return to start of loop
 
         elif patch[1].mean() > 0:  # If this is in the tumor
             if label == 'MALIGNANT':
-                save_path = '/media/kazzastic/C08EBCFB8EBCEAD4/data/patches/calcification/malignant'
-
+                save_path_memmogram = '/home/kazzastic/Videos/data/patches/calcification/malignant'
+                save_path_roi = '/home/kazzastic/Videos/data/patches/calcification/malignant-roi'
             elif label == 'BENIGN':
-                save_path = '/media/kazzastic/C08EBCFB8EBCEAD4/data/patches/calcification/benign'
-
+                save_path_memmogram = '/home/kazzastic/Videos/data/patches/calcification/benign'
+                save_path_roi = '/home/kazzastic/Videos/data/patches/calcification/benign-roi'
             else:
-                save_path = '/media/kazzastic/C08EBCFB8EBCEAD4/data/patches/calcification/benign_no_callback'
-
+                save_path_memmogram = '/home/kazzastic/Videos/data/patches/calcification/benign_no_callback'
+                save_path_roi = '/home/kazzastic/Videos/data/patches/calcification/benign_no_callback-roi'
         else:  # Not in the tumor
-            save_path = '/media/kazzastic/C08EBCFB8EBCEAD4/data/patches/calcification/no_tumor'
+            save_path_memmogram = '/home/kazzastic/Videos/data/patches/calcification/no_tumor'
+            save_path_roi = '/home/kazzastic/Videos/data/patches/calcification/no_tumor-roi'
 
         file_name = save_file_name + "_" + str(number)  # + ".png"
 
@@ -323,31 +305,51 @@ def save_patches(zipped_patches, label, save_file_name):
         # Save Original
         ###############
 
-        np.save(os.path.join(save_path, file_name), patch[0])
-        #cv2.imwrite(os.path.join(save_path, file_name), patch[0], [cv2.IMWRITE_PNG_COMPRESSION, 0])
-        num_original += 1
+        np.save(os.path.join(save_path_memmogram,
+                             file_name), patch[0])
+        # saving roi
+        np.save(os.path.join(save_path_roi, file_name), patch[1])
+        #cv2.imwrite(os.path.join(save_path_memmogram, file_name), patch[0], [cv2.IMWRITE_PNG_COMPRESSION, 0])
+        num_original_memmogram += 1
+        num_original_roi += 1
 
         ##############
         # Rotate
         ##############
+
+        # for memogram
         rotation_angle = np.random.randint(low=0, high=MAX_ROTATE)
         im = rotate_image(patch[0], rotation_angle)
+        file_name = save_file_name + \
+            "_" + "ROTATE_" + str(number)  # + "
+        np.save(os.path.join(save_path_memmogram, file_name), im)
 
-        file_name = save_file_name + "_" + "ROTATE_" + str(number)  # + "
+        # rotation for roi
+        rotation_angle = np.random.randint(low=0, high=MAX_ROTATE)
+        im = rotate_image(patch[1], rotation_angle)
+        np.save(os.path.join(save_path_roi, file_name), im)
 
-        np.save(os.path.join(save_path, file_name), im)
-        #cv2.imwrite(os.path.join(save_path, file_name), im, [cv2.IMWRITE_PNG_COMPRESSION, 0])
-        num_rotate += 1
+        #cv2.imwrite(os.path.join(save_path_memmogram, file_name), im, [cv2.IMWRITE_PNG_COMPRESSION, 0])
+        num_rotate_memmogram += 1
+        num_rotate_roi += 1
 
         ##############
         # Flip
         ##############
-        im = np.fliplr(patch[0])
 
-        file_name = save_file_name + "_" + "FLIP_" + str(number)  # + ".png"
-        np.save(os.path.join(save_path, file_name), im)
-        #cv2.imwrite(os.path.join(save_path, file_name), im, [cv2.IMWRITE_PNG_COMPRESSION, 0])
-        num_flip += 1
+        # for memmogram
+        im = np.fliplr(patch[0])
+        file_name = save_file_name + \
+            "_" + "FLIP_" + str(number)  # + ".png"
+        np.save(os.path.join(save_path_memmogram, file_name), im)
+        #cv2.imwrite(os.path.join(save_path_memmogram, file_name), im, [cv2.IMWRITE_PNG_COMPRESSION, 0])
+
+        # for roi
+        im = np.fliplr(patch[1])
+        np.save(os.path.join(save_path_roi, file_name), im)
+
+        num_flip_memmogram += 1
+        num_flip_roi += 1
 
 #         ##############
 #         # Resize
@@ -369,8 +371,10 @@ def save_patches(zipped_patches, label, save_file_name):
 
 #        except:
 #            errors.append(file_name)
-    print('Original: {}, Rotate: {}, Flip: {}, Resize: {}, Not Breast: {}'.format(
-        num_original, num_rotate, num_flip, num_resize, num_not_breast))
+    print('For Memmogram:\nOriginal: {}, Rotate: {}, Flip: {}, Resize: {}, Not Breast: {}'.format(
+        num_original_memmogram, num_rotate_memmogram, num_flip_memmogram, num_resize_memmogram, num_not_breast_memmogram))
+    print('For ROI:\nOriginal: {}, Rotate: {}, Flip: {}, Resize: {}, Not Breast: {}'.format(
+        num_original_roi, num_rotate_roi, num_flip_roi, num_resize_roi, num_not_breast_roi))
     print(len(errors))
 
 
@@ -409,436 +413,39 @@ def save_patches(zipped_patches, label, save_file_name):
 ##############################
 # RUN
 #############################
-def main():
-    # Get dictionary of {mammogram_file_name: (ROI_file, label)}
-    file_list = get_mask_list()
+# Get dictionary of {mammogram_file_name: (ROI_file, label)}
+file_list = get_mask_list()
 
-    for img_num, mammogram_img in enumerate(sorted(list(file_list.keys()))):
-        print("Image num: {}, Image name: {}, Number of ROIS: {} ".format(
-            img_num, mammogram_img, len(file_list[mammogram_img])))
+for img_num, mammogram_img in enumerate(sorted(list(file_list.keys()))):
+    print("Image num: {}, Image name: {}, Number of ROIS: {} ".format(
+        img_num, mammogram_img, len(file_list[mammogram_img])))
 
-        # Get images as np array
-        mammogram = get_im_as_array(mammogram_img, 'full')
+    # Get images as np array
+    mammogram = get_im_as_array(mammogram_img, 'full')
 
-        for roi_num, roi_img in enumerate(file_list[mammogram_img]):
+    for roi_num, roi_img in enumerate(file_list[mammogram_img]):
 
-            # Get ROI
-            roi = get_im_as_array(roi_img[0], 'ROI')
+        # Get ROI
+        roi = get_im_as_array(roi_img[0], 'ROI')
 
-            # Get label
-            label = roi_img[1]
-            data_for_saving = '\n' + \
-                'Image Name: ', mammogram_img, 'ROI_name: ', roi_img, 'label: ', label
-            with open('logging_file.csv', 'a') as logging_file:
-                logging_file.write(str(data_for_saving))
+        # Get label
+        label = roi_img[1]
+        data_for_saving = '\n' + \
+            'Image Name: ', mammogram_img, 'ROI_name: ', roi_img, 'label: ', label
+        with open('./logging_file.csv', 'a') as logging_file:
+            logging_file.write(str(data_for_saving))
 
-            print('label = ', label)
+        print('label = ', label)
 
-            if roi_num == 0:  # Run through original image
-                zipped_patches = get_zipped_patches(
-                    mammogram, roi, step_size=STEP_SIZE,  filter_roi=False)
-                save_patches(zipped_patches, label, mammogram_img)
+        if roi_num == 0:  # Run through original image
+            zipped_patches = get_zipped_patches(
+                mammogram, roi, step_size=STEP_SIZE,  filter_roi=False)
+            save_patches(zipped_patches, label, mammogram_img)
 
-            else:  # Dealing with images that have multiple ROIs - only look at the tumor sections
-                zipped_patches = get_zipped_patches(
-                    mammogram, roi, step_size=STEP_SIZE, filter_roi=True)
-                save_patches(zipped_patches, label, mammogram_img)
+        else:  # Dealing with images that have multiple ROIs - only look at the tumor sections
+            zipped_patches = get_zipped_patches(
+                mammogram, roi, step_size=STEP_SIZE, filter_roi=True)
+            save_patches(zipped_patches, label, mammogram_img)
 
-            # Memory Management
-            del(zipped_patches)
-
-
-main()
-# # # OLD CODE -- IGNORE BELOW
-
-# # In[4]:
-
-
-# file_list = get_mask_list()
-
-
-# # In[5]:
-
-
-# mammogram = get_im_as_array(list(file_list.keys())[0], 'full')
-
-
-# # In[6]:
-
-
-# roi = get_im_as_array(list(file_list.values())[0][0][0], 'ROI')
-
-
-# # In[7]:
-
-
-# s = get_patches(mammogram)
-
-
-# # In[8]:
-
-
-# s.shape
-
-
-# # In[9]:
-
-
-# s[0].shape
-
-
-# # In[10]:
-
-
-# plt.imshow(s[23000])
-
-
-# # In[11]:
-
-
-# x = rotate(s[23000], 30)
-
-
-# # In[13]:
-
-
-# plt.imshow(x)
-
-
-# # In[59]:
-
-
-# zipped_patches = get_zipped_patches(mammogram, roi, step_size=STEP_SIZE)
-
-
-# # In[50]:
-
-
-# x = np.array(list(zipped_patches))
-
-
-# # In[15]:
-
-
-# cv2.imwrite('/home/jlandesman/test.png', x)
-
-
-# # In[8]:
-
-
-# im -
-
-
-# # In[51]:
-
-
-# im = Image.open(os.path.join(
-#     PATH_TO_FILES, 'Calc-Training_P_00502_LEFT_CC_1_mask.png'))
-
-
-# # In[ ]:
-
-
-# im = get_im_as_array('Calc-Training_P_02270_RIGHT_MLO', 'full')
-# plt.imshow(im)
-
-
-# # In[4]:
-
-
-# with open('test_file.csv', 'a') as f:
-#     f.writelines("\ntest_line_4\n")
-
-
-# # ### Open up each file and its masks
-
-# # In[ ]:
-
-
-# mammogram = get_im_as_array(list(file_list.keys())[0], 'full')
-# roi = get_im_as_array(list(file_list.values())[0][0][0], 'ROI')
-
-# mammogram = get_patches(mammogram)
-# roi = get_patches(roi)
-
-# # NEW OPTIMIZATION CODE ATTEMPT
-# # Eliminate the bottom 25% percent of the image (presumably all black and some of the breast)
-# test = np.mean(mammogram, axis=(1, 2))
-
-# print(test.shape)
-
-
-# # patch_means = np.mean(np.array([mam[0] for mam in mammogram]), axis = (1,2))
-# # percentile_cutoff = np.percentile(patch_means, q = 25)
-
-# # ## Note mask is GREATER THAN cutoff
-# # mask = np.where(mean_score > percentile_cutoff)
-
-# # ## Apply mask
-# # mammogram = mammogram[mask[0],:,:]
-# # roi = roi[mask[0],:,:]
-
-
-# # roi = roi/255 ## Normalize to between 0-1
-
-# # label = list(file_list.values())[0][0][1]
-# # label
-
-
-# # ### Get the Otsu's Mask Segementation of the image
-
-# # In[ ]:
-
-
-# mask = get_mask(mammogram)
-# mask = mask/255  # Normalize to between 0/1
-
-
-# # ### Visualization
-
-# # In[ ]:
-
-
-# fig = plt.figure()
-# a = fig.add_subplot(1, 3, 1)
-# plt.imshow(mammogram)
-
-# a = fig.add_subplot(1, 3, 2)
-# plt.imshow(roi)
-
-# a = fig.add_subplot(1, 3, 3)
-# plt.imshow(mask)
-
-
-# # ### For each image, we want to:
-# # * Preprocess the image
-# # * Divide into patches
-# # * Check if each patch is largely in the breast. If not, discard it.
-# # * Check if each patch is in the ROI
-# # * Save the image into an appropriate folder either "benign, malignant, benign_without_callback, or no_tumor
-# #
-# # The strategy for checking whether each patch is in the breast or in the ROI is to look at a mean value of the ROI and the Otsu masks and determine a threshold for cutting off an image
-
-# # In[ ]:
-
-
-# def get_zipped_patches():
-#     return zip(get_patches(mammogram), get_patches(roi), get_patches(mask))
-
-
-# mean_roi = np.array([patch[1].mean() for patch in get_zipped_patches()])
-# mean_mask = np.array([patch[2].mean() for patch in get_zipped_patches()])
-
-
-# fig = plt.figure()
-# a = fig.add_subplot(1, 2, 1)
-# plt.hist(mean_roi)
-# plt.title('Distribution of ROI avg')
-
-# a = fig.add_subplot(1, 2, 2)
-# plt.hist(mean_mask)
-# plt.title('Distribution of MASK avg')
-
-
-# # ### Cutoff threshold
-# #
-# # It seems for this sample image that cutting off at zero will eliminate most of the ROI (this is a large ROI) and 12% of the mask.  If this does not work, this is a key threshold to change in the future to avoid a lot of meaningless patches.  These values are stored in __MASK_CUTOFF__ and __ROI_CUTOFF__ above.
-
-# # In[ ]:
-
-
-# percent_roi_not_equal_zero = len(mean_roi[mean_roi > 0])/mean_roi.shape[0]
-# percent_mask_not_equal_zero = len(mean_mask[mean_mask > 0])/mean_mask.shape[0]
-
-# print('Percent of ROI != 0 {}'.format(percent_roi_not_equal_zero))
-# print('Percent of Mask != 0 {}'.format(percent_mask_not_equal_zero))
-
-
-# # In[ ]:
-
-
-# print(get_resize_dims(mammogram), get_resize_dims(
-#     roi, not_random=False), get_resize_dims(mask, not_random=False))
-
-
-# # rotation_angle = np.random.randint(low = 0, high = MAX_ROTATE)
-
-# # ## Old functions previously in utils
-
-# # In[ ]:
-
-
-# # def get_resize_dims(im, dim_0, dim_1):
-# #     '''
-# #     Uniformly choose between resize_min and resize_max dimesnions
-# #     Default is the "second resizing" mentioned in the paper above
-# #     Use random to determine if we want a new randomization or to preserve the last one
-# #     or to make sure if the masks and images are identical
-# #     '''
-# #     if not_random:
-# #         np.random.seed(1234)
-
-# #     dim_0 = np.random.uniform(low = resize_min, high = resize_max)
-
-# #     if not_random:
-# #         np.random.seed(1234)
-
-# #     dim_1 = np.random.uniform(low = resize_min, high = resize_max)
-# #     return np.round([dim_0*im.shape[0], dim_1*im.shape[1]])
-
-
-# # def get_mask(im):
-# #     '''
-# #     Return OTSU's threshold mask. For use to make sure that the image patches are within the breast, not the empty space outside
-# #     '''
-# #     ## OTSU's threshold
-# #     thresh = threshold_otsu(im)
-# #     binary = im >= thresh
-# #     return(binary)
-
-# #     mask = get_mask(mammogram)
-# #     mask = mask/255 ## Normalize to between 0/1
-
-
-# # In[37]:
-
-
-# j = os.listdir(
-#     '/home/jlandesman/data/patches/calcification/benign_no_callback/')
-
-
-# # In[38]:
-
-
-# len(j)
-
-
-# # In[39]:
-
-
-# sorted(j)
-
-
-# # In[51]:
-
-
-# x = np.load('/home/jlandesman/data/patches/calcification/benign_no_callback/Calc-Training_P_00008_LEFT_CC_ROTATE_566.npy')
-
-
-# # In[52]:
-
-
-# plt.imshow(x)
-
-
-# # In[43]:
-
-
-# x = np.load('/home/jlandesman/data/patches/calcification/benign_no_callback/Calc-Training_P_00008_LEFT_CC_FLIP_0.npy')
-
-
-# # In[44]:
-
-
-# plt.imshow(x)
-
-
-# # In[7]:
-
-
-# scipy.misc.imsave('test.png', x)
-
-
-# # In[9]:
-
-
-# print(scipy.__version__)
-
-
-# # In[21]:
-
-
-# # In[22]:
-
-
-# io.use_plugin('freeimage')
-
-
-# # In[23]:
-
-
-# im = exposure.rescale_intensity(x, out_range='float')
-# im = img_as_uint(im)
-# io.imsave('test3.png', im)
-
-
-# # In[15]:
-
-
-# imsave('test2.png', x)
-
-
-# # In[12]:
-
-
-# imwrite('test.png', x)
-
-
-# # In[26]:
-
-
-# im = np.load(
-#     '/home/jlandesman/data/patches/calcification/malignant/Calc-Training_P_02559_RIGHT_MLO_RESIZE_974.png.npy')
-
-
-# # In[27]:
-
-
-# im.shape
-
-
-# # In[3]:
-
-
-# im = Image.open(
-#     '/home/jlandesman/data/cbis-ddsm/calc_training_full_roi_images/Calc-Training_P_00005_RIGHT_CC_1_mask.png')
-
-
-# # In[4]:
-
-
-# im = np.asarray(im)
-
-
-# # In[5]:
-
-
-# roi = get_patches(im, 'ROI')
-
-
-# # In[6]:
-
-
-# im.shape
-
-
-# # In[7]:
-
-
-# plt.imshow(im)
-
-
-# # In[8]:
-
-
-# im[0:10, 0:10]
-
-
-# # In[9]:
-
-
-# np.where(im == 255)
-
-
-# # In[ ]:
-# '''
+        # Memory Management
+        del(zipped_patches)
