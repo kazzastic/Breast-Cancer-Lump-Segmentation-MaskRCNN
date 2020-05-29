@@ -184,6 +184,7 @@ class BreastTumorsDataset(utils.Dataset):
         
         image_dir, imagefile = os.path.split(imagepath)
         imagefilename, ext = os.path.splitext(imagefile)
+        another = imagefilename
         var = imagefilename
         print("Imagefile:{}".format(var))
         if(CC in var):
@@ -227,8 +228,10 @@ class BreastTumorsDataset(utils.Dataset):
 
         # Load mask
         path_for_mask = '/media/kazzastic/C08EBCFB8EBCEAD4/Calc_training_full_roi_images/'
-        mask = cv2.imread(path_for_mask+maskfile[0])
-        
+        #mask = cv2.imread(path_for_mask+maskfile[0])
+        full_path = path_for_mask+another+'.png'
+        print("This is full Path "+full_path)
+        mask = cv2.imread(full_path)
         # If grayscale. Convert to RGB for consistency.
         #if mask.ndim != 3:
         #    mask = skimage.color.gray2rgb(mask)

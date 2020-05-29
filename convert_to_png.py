@@ -7,7 +7,7 @@ from multiprocessing import Pool
 TRAIN_PATH = '/home/kazzastic/Videos/data/patches/calcification/'
 #TEST_PATH = '/media/kazzastic/C08EBCFB8EBCEAD4/data/patches/calcification'
 
-NEW_TRAIN_PATH = '/home/kazzastic/Videos/fin_data/patches/calcification/'
+NEW_TRAIN_PATH = '/media/kazzastic/C08EBCFB8EBCEAD4/fin_data/patches/calcification/'
 #NEW_TEST_PATH = '/mnt/disks/patches/calcifications/test/'
 
 def normalize(img):
@@ -33,7 +33,7 @@ def save_files(IN_PATH, img_type, OUT_PATH, file_type):
     print(files[0])
     print(len(files))
     if img_type == 'no_tumor' and file_type == '':
-        already_processed = os.listdir('/home/kazzastic/Videos/fin_data/patches/calcification/no_tumor')
+        already_processed = os.listdir('/media/kazzastic/C08EBCFB8EBCEAD4/fin_data/patches/calcification/no_tumor')
         already_processed = [i[:-4] for i in already_processed]
         files = [i[:-4] for i in files] 
         files = list(set(files) - set(already_processed))
@@ -62,15 +62,15 @@ def save_files(IN_PATH, img_type, OUT_PATH, file_type):
 
 
 if __name__ == '__main__':
-    save_files(TRAIN_PATH, 'no_tumor','/home/kazzastic/Videos/fin_data/patches/calcification/', '')
-    save_files(TRAIN_PATH, 'benign','/home/kazzastic/Videos/fin_data/patches/calcification/', '')
-    save_files(TRAIN_PATH, 'benign_no_callback','/home/kazzastic/Videos/fin_data/patches/calcification/', '')
-    save_files(TRAIN_PATH, 'malignant','/home/kazzastic/Videos/fin_data/patches/calcification/', '')
+#    save_files(TRAIN_PATH, 'no_tumor','/home/kazzastic/Videos/fin_data/patches/calcification/', '')
+#    save_files(TRAIN_PATH, 'benign','/home/kazzastic/Videos/fin_data/patches/calcification/', '')
+#    save_files(TRAIN_PATH, 'benign_no_callback','/home/kazzastic/Videos/fin_data/patches/calcification/', '')
+#    save_files(TRAIN_PATH, 'malignant','/home/kazzastic/Videos/fin_data/patches/calcification/', '')
     
-    save_files(TRAIN_PATH, 'no_tumor-roi','/home/kazzastic/Videos/fin_data/patches/calcification/', '')
-    save_files(TRAIN_PATH, 'benign-roi','/home/kazzastic/Videos/fin_data/patches/calcification/', '')
-    save_files(TRAIN_PATH, 'benign_no_callback-roi','/home/kazzastic/Videos/fin_data/patches/calcification/', '')
-    save_files(TRAIN_PATH, 'malignant-roi','/home/kazzastic/Videos/fin_data/patches/calcification/', '')
+    save_files(TRAIN_PATH, 'no_tumor-roi','/media/kazzastic/C08EBCFB8EBCEAD4/fin_data/patches/calcification/', '')
+    save_files(TRAIN_PATH, 'benign-roi','/media/kazzastic/C08EBCFB8EBCEAD4/fin_data/patches/calcification/', '')
+    save_files(TRAIN_PATH, 'benign_no_callback-roi','/media/kazzastic/C08EBCFB8EBCEAD4/fin_data/patches/calcification/', '')
+    save_files(TRAIN_PATH, 'malignant-roi','/media/kazzastic/C08EBCFB8EBCEAD4/fin_data/patches/calcification/', '')
 
     #save_files(TEST_PATH, 'no_tumor','/mnt/disks/patches/calcifications/', 'test')
     #save_files(TEST_PATH, 'benign','/mnt/disks/patches/calcifications/', 'test')

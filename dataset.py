@@ -19,7 +19,8 @@ def dataset_folder_roi(dataset_folder, new_dataset_folder):
     example : /media/kazzastic/external hdd/new dataset/
     '''
     arr = []
-    dataset_folder = dataset_folder+'*png'
+    for j in range(len(dataset_folder)):
+        dataset_folder[j]+='*png'
     
     for filename in glob.glob(dataset_folder):
         arr.append(filename)
@@ -54,7 +55,7 @@ def dataset_folder_mammogram(dataset_folder, new_dataset_folder):
         count+=1
         print("File Count {}".format(count))
         
-one = '/media/kazzastic/C08EBCFB8EBCEAD4/data_png/patches/calcification/'
-folders = [one+'benign/',one+'benign_no_callback/', one+'malignant/', one+'no_tumor/']
-new_folder = '/media/kazzastic/C08EBCFB8EBCEAD4/Calc_training_full_mammogram_images/'
+one = '/media/kazzastic/C08EBCFB8EBCEAD4/fin_data/patches/calcification/'
+folders = [one+'benign-roi/',one+'benign_no_callback-roi/', one+'malignant-roi/', one+'no_tumor-roi/']
+new_folder = '/media/kazzastic/C08EBCFB8EBCEAD4/Calc_training_full_roi_images/'
 dataset_folder_mammogram(folders, new_folder)
