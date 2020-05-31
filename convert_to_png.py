@@ -4,7 +4,7 @@ import cv2
 import numpy  as np
 from multiprocessing import Pool 
 
-TRAIN_PATH = '/home/kazzastic/Videos/data/patches/calcification/'
+TRAIN_PATH = '/media/kazzastic/C08EBCFB8EBCEAD4/new_data_roi/patches/calcification/'
 #TEST_PATH = '/media/kazzastic/C08EBCFB8EBCEAD4/data/patches/calcification'
 
 NEW_TRAIN_PATH = '/media/kazzastic/C08EBCFB8EBCEAD4/fin_data/patches/calcification/'

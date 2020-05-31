@@ -286,17 +286,17 @@ def save_patches(zipped_patches, label, save_file_name):
 
         elif patch[1].mean() > 0:  # If this is in the tumor
             if label == 'MALIGNANT':
-                save_path_memmogram = '/home/kazzastic/Videos/data/patches/calcification/malignant'
-                save_path_roi = '/home/kazzastic/Videos/data/patches/calcification/malignant-roi'
+                save_path_memmogram = '/media/kazzastic/C08EBCFB8EBCEAD4/new_data_roi/patches/calcification/malignant'
+                save_path_roi = '/media/kazzastic/C08EBCFB8EBCEAD4/new_data_roi/patches/calcification/malignant-roi'
             elif label == 'BENIGN':
-                save_path_memmogram = '/home/kazzastic/Videos/data/patches/calcification/benign'
-                save_path_roi = '/home/kazzastic/Videos/data/patches/calcification/benign-roi'
+                save_path_memmogram = '/media/kazzastic/C08EBCFB8EBCEAD4/new_data_roi/patches/calcification/benign'
+                save_path_roi = '/media/kazzastic/C08EBCFB8EBCEAD4/new_data_roi/patches/calcification/benign-roi'
             else:
-                save_path_memmogram = '/home/kazzastic/Videos/data/patches/calcification/benign_no_callback'
-                save_path_roi = '/home/kazzastic/Videos/data/patches/calcification/benign_no_callback-roi'
+                save_path_memmogram = '/media/kazzastic/C08EBCFB8EBCEAD4/new_data_roi/patches/calcification/benign_no_callback'
+                save_path_roi = '/media/kazzastic/C08EBCFB8EBCEAD4/new_data_roi/patches/calcification/benign_no_callback-roi'
         else:  # Not in the tumor
-            save_path_memmogram = '/home/kazzastic/Videos/data/patches/calcification/no_tumor'
-            save_path_roi = '/home/kazzastic/Videos/data/patches/calcification/no_tumor-roi'
+            save_path_memmogram = '/media/kazzastic/C08EBCFB8EBCEAD4/new_data_roi/patches/calcification/no_tumor'
+            save_path_roi = '/media/kazzastic/C08EBCFB8EBCEAD4/new_data_roi/patches/calcification/no_tumor-roi'
 
         file_name = save_file_name + "_" + str(number)  # + ".png"
 
