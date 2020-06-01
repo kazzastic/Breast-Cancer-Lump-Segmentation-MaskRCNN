@@ -17,9 +17,9 @@ import matplotlib.pyplot as plt
 
 from config import Config
 import utils
-import model as modellib
+import mode as modellib
 import visualize
-from model import log
+from mode import log
 
 from IPython.display import SVG
 from keras.utils.vis_utils import model_to_dot
@@ -89,18 +89,18 @@ class BreastTumorsConfig(Config):
     TRAIN_ROIS_PER_IMAGE = 32
 
     # Use a small epoch since the data is simple
-    #STEPS_PER_EPOCH = 2831
+    STEPS_PER_EPOCH = 2831
     #STEPS_PER_EPOCH = 2205
-    STEPS_PER_EPOCH = 20
+    #STEPS_PER_EPOCH = 20
 
     # use small validation steps since the epoch is small
-    #VALIDATION_STPES = 626
-    VALIDATION_STPES = 63
+    VALIDATION_STPES = 626
+    #VALIDATION_STPES = 63
     
     USE_MINI_MASK=False
     
 config = BreastTumorsConfig()
-config.print()
+#config.print()
 
 
 # # Notebook Preferences 
@@ -335,314 +335,312 @@ model.train(dataset_train, dataset_val,
             epochs=1, 
             layers='heads')
 
+model_path = os.path.join(MODEL_DIR, "mask_rcnn_shapes.h5")
+model.keras_model.save_weights(model_path)
 
 # ## Detection
 
 # In[ ]:
-
-
-class InferenceConfig(BreastTumorsConfig):
-    GPU_COUNT = 1
-    IMAGES_PER_GPU = 1
-
-inference_config = InferenceConfig()
-
-# Recreate the model in inference mode
-model = modellib.MaskRCNN(mode="inference", 
-                          config=inference_config,
-                          model_dir=MODEL_DIR)
-
-# Get path to saved weights
-# Either set a specific path or find last trained weights
-
-#model_path = os.path.join(ROOT_DIR, 'logs', 'roi_breast_tumors_patches1024_nr20171125T0505', 'mask_rcnn_roi_breast_tumors_patches1024_nr_0259.h5')
-model_path = os.path.join(ROOT_DIR,'patches.h5')
-# Load trained weights (fill in path to trained weights here)
-assert model_path != "", "Provide path to trained weights"
-print("Loading weights from ", model_path)
-model.load_weights(model_path, by_name=True)
-
-
-# # Malignant Case
-
-# In[ ]:
-
-
-# Test on a random image
+#
+#
+#class InferenceConfig(BreastTumorsConfig):
+#    GPU_COUNT = 1
+#    IMAGES_PER_GPU = 1
+#
+#inference_config = InferenceConfig()
+#
+## Recreate the model in inference mode
+#model = modellib.MaskRCNN(mode="inference", 
+#                          config=inference_config,
+#                          model_dir=MODEL_DIR)
+#
+## Get path to saved weights
+## Either set a specific path or find last trained weights
+#
+##model_path = os.path.join(ROOT_DIR, 'logs', 'roi_breast_tumors_patches1024_nr20171125T0505', 'mask_rcnn_roi_breast_tumors_patches1024_nr_0259.h5')
+#model_path = os.path.join(ROOT_DIR,'patches.h5')
+## Load trained weights (fill in path to trained weights here)
+#assert model_path != "", "Provide path to trained weights"
+#print("Loading weights from ", model_path)
+#model.load_weights(model_path, by_name=True)
+#
+#
+## # Malignant Case
+#
+## In[ ]:
+#
+#
+## Test on a random image
+##image_id = random.choice(dataset_val.image_ids)
+#image_id = 0
+#print('Image id: {0}'.format(image_id))
+#original_image, image_meta, gt_bbox, gt_mask =    modellib.load_image_gt(dataset_val, inference_config, 
+#                           image_id, use_mini_mask=False)
+#
+#log("original_image", original_image)
+#log("image_meta", image_meta)
+#log("gt_bbox", gt_bbox)
+#log("gt_mask", gt_mask)
+#
+#fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(20,20))
+#
+#visualize.display_instances(original_image, gt_bbox[:,:4], gt_mask, gt_bbox[:,4], 
+#                            dataset_val.class_names, figsize=(8, 8),ax=ax1)
+#
+#
+#print()
+#start =  time.time()
+#results = model.detect([original_image], verbose=1)
+#end = time.time()
+#
+#r = results[0]
+#visualize.display_instances(original_image, r['rois'], r['masks'], r['class_ids'], 
+#                            dataset_val.class_names, r['scores'], ax=ax2)
+#
+#ax1.set_title('Ground Truth', fontsize=20)
+#ax2.set_title('Prediction',fontsize=20)
+#
+#fig.subplots_adjust(hspace=50)
+#
+#print('Detection time = {0} seconds'.format(end-start))
+#
+#
+## # Benign Case
+#
+## In[ ]:
+#
+#
+## Test on a random image
+##image_id = random.choice(dataset_val.image_ids)
+#image_id = 12
+#print('Image id: {0}'.format(image_id))
+#original_image, image_meta, gt_bbox, gt_mask =    modellib.load_image_gt(dataset_val, inference_config, 
+#                           image_id, use_mini_mask=False)
+#
+#log("original_image", original_image)
+#log("image_meta", image_meta)
+#log("gt_bbox", gt_bbox)
+#log("gt_mask", gt_mask)
+#
+#fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(20,20))
+#
+#visualize.display_instances(original_image, gt_bbox[:,:4], gt_mask, gt_bbox[:,4], 
+#                            dataset_val.class_names, figsize=(8, 8),ax=ax1)
+#
+#
+#print()
+#start =  time.time()
+#results = model.detect([original_image], verbose=1)
+#end = time.time()
+#
+#r = results[0]
+#visualize.display_instances(original_image, r['rois'], r['masks'], r['class_ids'], 
+#                            dataset_val.class_names, r['scores'], ax=ax2)
+#
+#ax1.set_title('Ground Truth', fontsize=20)
+#ax2.set_title('Prediction', fontsize=20)
+#
+#fig.subplots_adjust(hspace=50)
+#
+#print('Detection time = {0} seconds'.format(end-start))
+#
+#
+## In[ ]:
+#
+#
+#
+#
+#
+## In[ ]:
+#
+#
+#
+#
+#
+## In[ ]:
+#
+#
+#
+#
+#
+## In[ ]:
+#
+#
+#
+#
+#
+## In[ ]:
+#
+#
+#
+#
+#
+## In[ ]:
+#
+#
+#
+#
+#
+## In[ ]:
+#
+#
+#
+#
+#
+## In[ ]:
+#
+#
+#
+#
+#
+## In[ ]:
+#
+#
+#
+#
+#
+## # Ground Truth
+#
+## In[ ]:
+#
+#
+## Test on a random image
 #image_id = random.choice(dataset_val.image_ids)
-image_id = 0
-print('Image id: {0}'.format(image_id))
-original_image, image_meta, gt_bbox, gt_mask =    modellib.load_image_gt(dataset_val, inference_config, 
-                           image_id, use_mini_mask=False)
-
-log("original_image", original_image)
-log("image_meta", image_meta)
-log("gt_bbox", gt_bbox)
-log("gt_mask", gt_mask)
-
-fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(20,20))
-
-visualize.display_instances(original_image, gt_bbox[:,:4], gt_mask, gt_bbox[:,4], 
-                            dataset_val.class_names, figsize=(8, 8),ax=ax1)
-
-
-print()
-start =  time.time()
-results = model.detect([original_image], verbose=1)
-end = time.time()
-
-r = results[0]
-visualize.display_instances(original_image, r['rois'], r['masks'], r['class_ids'], 
-                            dataset_val.class_names, r['scores'], ax=ax2)
-
-ax1.set_title('Ground Truth', fontsize=20)
-ax2.set_title('Prediction',fontsize=20)
-
-fig.subplots_adjust(hspace=50)
-
-print('Detection time = {0} seconds'.format(end-start))
-
-
-# # Benign Case
-
-# In[ ]:
-
-
-# Test on a random image
-#image_id = random.choice(dataset_val.image_ids)
-image_id = 12
-print('Image id: {0}'.format(image_id))
-original_image, image_meta, gt_bbox, gt_mask =    modellib.load_image_gt(dataset_val, inference_config, 
-                           image_id, use_mini_mask=False)
-
-log("original_image", original_image)
-log("image_meta", image_meta)
-log("gt_bbox", gt_bbox)
-log("gt_mask", gt_mask)
-
-fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(20,20))
-
-visualize.display_instances(original_image, gt_bbox[:,:4], gt_mask, gt_bbox[:,4], 
-                            dataset_val.class_names, figsize=(8, 8),ax=ax1)
-
-
-print()
-start =  time.time()
-results = model.detect([original_image], verbose=1)
-end = time.time()
-
-r = results[0]
-visualize.display_instances(original_image, r['rois'], r['masks'], r['class_ids'], 
-                            dataset_val.class_names, r['scores'], ax=ax2)
-
-ax1.set_title('Ground Truth', fontsize=20)
-ax2.set_title('Prediction', fontsize=20)
-
-fig.subplots_adjust(hspace=50)
-
-print('Detection time = {0} seconds'.format(end-start))
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# # Ground Truth
-
-# In[ ]:
-
-
-# Test on a random image
-image_id = random.choice(dataset_val.image_ids)
-#image_id = 110
-print('Image id: {0}'.format(image_id))
-original_image, image_meta, gt_bbox, gt_mask =    modellib.load_image_gt(dataset_val, inference_config, 
-                           image_id, use_mini_mask=False)
-
-log("original_image", original_image)
-log("image_meta", image_meta)
-log("gt_bbox", gt_bbox)
-log("gt_mask", gt_mask)
-
-visualize.display_instances(original_image, gt_bbox[:,:4], gt_mask, gt_bbox[:,4], 
-                            dataset_val.class_names, figsize=(8, 8))
-
-
-# # Prediction
-
-# In[ ]:
-
-
-start =  time.time()
-results = model.detect([original_image], verbose=1)
-end = time.time()
-
-r = results[0]
-visualize.display_instances(original_image, r['rois'], r['masks'], r['class_ids'], 
-                            dataset_val.class_names, r['scores'], ax=get_ax())
-
-print('Detection time = {0} seconds'.format(end-start))
-
-
-# In[ ]:
-
-
-from IPython.display import HTML
-HTML('''<script>
-code_show_err=false; 
-function code_toggle_err() {
- if (code_show_err){
- $('div.output_stderr').hide();
- } else {
- $('div.output_stderr').show();
- }
- code_show_err = !code_show_err
-} 
-$( document ).ready(code_toggle_err);
-</script>
-To toggle on/off output_stderr, click <a href="javascript:code_toggle_err()">here</a>.''')
-
-
-# # Class Evaluation
-
-# In[ ]:
-
-
-
-##image_ids = np.random.choice(dataset_val.image_ids, 2)
-image_ids = dataset_val.image_ids
-
-##APs = []
-image_paths = []
-source_classes = []
-target_classes = []
-match_classes = []
-match_cases = defaultdict(int)
-
-
-for image_id in image_ids:
-    print('Image id: {0}'.format(image_id))
-    # Load image and ground truth data
-    image, image_meta, gt_bbox, gt_mask =        modellib.load_image_gt(dataset_val, inference_config,
-                               image_id, use_mini_mask=False)
-    molded_images = np.expand_dims(modellib.mold_image(image, inference_config), 0)
-    # Run object detection
-    results = model.detect([image], verbose=0)
-    r = results[0]
-    # Compute AP
-    ##AP, precisions, recalls, overlaps =\
-    ##    utils.compute_ap(gt_bbox[:,:4], gt_bbox[:,4],
-    ##                     r["rois"], r["class_ids"], r["scores"], iou_threshold=0.5)
-    ##APs.append(AP)
-    
-    mask, source_class = dataset_val.load_mask(image_id)
-    target_class = r["class_ids"]
-    imagepath = dataset_val.image_reference(image_id)
-    prefix, p, patientid, side, suffix = imagepath.split('_')
-    view, tumor, angle, patch_width, patch_height, hstride, vstride, row, column, pathext = suffix.split('-')
-    pathology, ext = pathext.split('.')
-    
-    key = str(patientid) + side + view + tumor + pathology
-    print(key)
-    match_cases[key] = 0
-    
-    print('Source class')
-    print(source_class)
-    print('Target class')
-    print(target_class)
-    
-    source_classes.append(source_class[0])
-    
-
-    if len(target_class) == 0:
-        target_classes.append(target_class)
-        match_classes.append(0)
-    elif len(target_class) == 1:
-        target_classes.append(target_class[0])
-        match = 1 if source_class[0] == target_class[0] else 0
-        match_classes.append(match)
-        if match == 1: # if matched then set to 1
-            match_cases[key] = 1
-    else:
-        target_classes.append(target_class[0])
-        match = 0
-        for z in target_class:
-            if source_class[0] == z:
-                match = 1
-
-        match_classes.append(match)
-        if match == 1: # if matched then set to 1
-            match_cases[key] = 1
-        
-    image_paths.append(dataset_val.image_reference(image_id))
-    
-    
-print(match_cases)    
-##print("mAP: ", np.mean(APs))
-
-count = 0
-total = 0
-for k, v in match_cases.items():
-    count += 1
-    total += v
-    
-print('case accuracy: ', total/count)
-
-print('accuracy: ', np.mean(match_classes))
-
-
-# In[ ]:
-
-
-
-
+##image_id = 110
+#print('Image id: {0}'.format(image_id))
+#original_image, image_meta, gt_bbox, gt_mask =    modellib.load_image_gt(dataset_val, inference_config, 
+#                           image_id, use_mini_mask=False)
+#
+#log("original_image", original_image)
+#log("image_meta", image_meta)
+#log("gt_bbox", gt_bbox)
+#log("gt_mask", gt_mask)
+#
+#visualize.display_instances(original_image, gt_bbox[:,:4], gt_mask, gt_bbox[:,4], 
+#                            dataset_val.class_names, figsize=(8, 8))
+#
+#
+## # Prediction
+#
+## In[ ]:
+#
+#
+#start =  time.time()
+#results = model.detect([original_image], verbose=1)
+#end = time.time()
+#
+#r = results[0]
+#visualize.display_instances(original_image, r['rois'], r['masks'], r['class_ids'], 
+#                            dataset_val.class_names, r['scores'], ax=get_ax())
+#
+#print('Detection time = {0} seconds'.format(end-start))
+#
+#
+## In[ ]:
+#
+#
+#from IPython.display import HTML
+#HTML('''<script>
+#code_show_err=false; 
+#function code_toggle_err() {
+# if (code_show_err){
+# $('div.output_stderr').hide();
+# } else {
+# $('div.output_stderr').show();
+# }
+# code_show_err = !code_show_err
+#} 
+#$( document ).ready(code_toggle_err);
+#</script>
+#To toggle on/off output_stderr, click <a href="javascript:code_toggle_err()">here</a>.''')
+#
+#
+## # Class Evaluation
+#
+## In[ ]:
+#
+#
+#
+###image_ids = np.random.choice(dataset_val.image_ids, 2)
+#image_ids = dataset_val.image_ids
+#
+###APs = []
+#image_paths = []
+#source_classes = []
+#target_classes = []
+#match_classes = []
+#match_cases = defaultdict(int)
+#
+#
+#for image_id in image_ids:
+#    print('Image id: {0}'.format(image_id))
+#    # Load image and ground truth data
+#    image, image_meta, gt_bbox, gt_mask =        modellib.load_image_gt(dataset_val, inference_config,
+#                               image_id, use_mini_mask=False)
+#    molded_images = np.expand_dims(modellib.mold_image(image, inference_config), 0)
+#    # Run object detection
+#    results = model.detect([image], verbose=0)
+#    r = results[0]
+#    # Compute AP
+#    ##AP, precisions, recalls, overlaps =\
+#    ##    utils.compute_ap(gt_bbox[:,:4], gt_bbox[:,4],
+#    ##                     r["rois"], r["class_ids"], r["scores"], iou_threshold=0.5)
+#    ##APs.append(AP)
+#    
+#    mask, source_class = dataset_val.load_mask(image_id)
+#    target_class = r["class_ids"]
+#    imagepath = dataset_val.image_reference(image_id)
+#    prefix, p, patientid, side, suffix = imagepath.split('_')
+#    view, tumor, angle, patch_width, patch_height, hstride, vstride, row, column, pathext = suffix.split('-')
+#    pathology, ext = pathext.split('.')
+#    
+#    key = str(patientid) + side + view + tumor + pathology
+#    print(key)
+#    match_cases[key] = 0
+#    
+#    print('Source class')
+#    print(source_class)
+#    print('Target class')
+#    print(target_class)
+#    
+#    source_classes.append(source_class[0])
+#    
+#
+#    if len(target_class) == 0:
+#        target_classes.append(target_class)
+#        match_classes.append(0)
+#    elif len(target_class) == 1:
+#        target_classes.append(target_class[0])
+#        match = 1 if source_class[0] == target_class[0] else 0
+#        match_classes.append(match)
+#        if match == 1: # if matched then set to 1
+#            match_cases[key] = 1
+#    else:
+#        target_classes.append(target_class[0])
+#        match = 0
+#        for z in target_class:
+#            if source_class[0] == z:
+#                match = 1
+#
+#        match_classes.append(match)
+#        if match == 1: # if matched then set to 1
+#            match_cases[key] = 1
+#        
+#    image_paths.append(dataset_val.image_reference(image_id))
+#    
+#    
+#print(match_cases)    
+###print("mAP: ", np.mean(APs))
+#
+#count = 0
+#total = 0
+#for k, v in match_cases.items():
+#    count += 1
+#    total += v
+#    
+#print('case accuracy: ', total/count)
+#
+#print('accuracy: ', np.mean(match_classes))
+#
+#
+## In[ ]:
