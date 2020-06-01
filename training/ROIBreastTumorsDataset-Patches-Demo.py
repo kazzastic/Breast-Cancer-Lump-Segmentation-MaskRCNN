@@ -89,13 +89,13 @@ class BreastTumorsConfig(Config):
     TRAIN_ROIS_PER_IMAGE = 32
 
     # Use a small epoch since the data is simple
-    STEPS_PER_EPOCH = 2831
+    #STEPS_PER_EPOCH = 2831
     #STEPS_PER_EPOCH = 2205
-    #STEPS_PER_EPOCH = 220
+    STEPS_PER_EPOCH = 20
 
     # use small validation steps since the epoch is small
-    VALIDATION_STPES = 626
-    #VALIDATION_STPES = 63
+    #VALIDATION_STPES = 626
+    VALIDATION_STPES = 63
     
     USE_MINI_MASK=False
     
