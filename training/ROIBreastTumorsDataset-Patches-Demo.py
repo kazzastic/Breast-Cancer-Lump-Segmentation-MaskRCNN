@@ -335,6 +335,11 @@ model.train(dataset_train, dataset_val,
             epochs=1, 
             layers='heads')
 
+model.train(dataset_train, dataset_val, 
+            learning_rate=config.LEARNING_RATE / 10,
+            epochs=2, 
+            layers="all")
+
 model_path = os.path.join(MODEL_DIR, "mask_rcnn_shapes.h5")
 model.keras_model.save_weights(model_path)
 
