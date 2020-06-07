@@ -21,11 +21,11 @@ import mode as modellib
 import visualize
 from mode import log
 
-from IPython.display import SVG
+#from IPython.display import SVG
 from keras.utils.vis_utils import model_to_dot
 from keras.utils import plot_model
 
-get_ipython().run_line_magic('matplotlib', 'inline')
+#get_ipython().run_line_magic('matplotlib', 'inline')
 
 import pandas as pd
 from collections import defaultdict
@@ -220,18 +220,31 @@ class BreastTumorsDataset(utils.Dataset):
         #            pathology + ext
         
         #maskfile = os.path.join(self.mask_dir1,prefix+'_'+patient_id1+'_'+patient_id2+'_'+side+'_'+viewsuffix+'_mask.png')
-        csv = pd.read_csv('../csv/calc_case_description_test_set.csv')
-        maskfile = csv[csv['image file path'].str.contains(temp)]
-        maskfile = maskfile['ROI mask file path'].to_frame().iloc[0][0].split('/')
-        maskfile[0]+='_mask.png'
-        print("Maskfile:{}".format(maskfile[0]))
-
+        if(prefix=='Calc-Test'):
+            csv = pd.read_csv('../csv/calc_case_description_test_set.csv')
+            maskfile = csv[csv['image file path'].str.contains(temp)]
+            maskfile = maskfile['ROI mask file path'].to_frame().iloc[0][0].split('/')
+            maskfile[0]+='_mask.png'
+            print("Maskfile:{}".format(maskfile[0]))
+        else:
+            csv = pd.read_csv('../csv/calc_case_description_train_set.csv')
+            maskfile = csv[csv['image file path'].str.contains(temp)]
+            maskfile = maskfile['ROI mask file path'].to_frame().iloc[0][0].split('/')
+            maskfile[0]+='_mask.png'
+            print("Maskfile:{}".format(maskfile[0]))
         # Load mask
-        path_for_mask = '/media/kazzastic/C08EBCFB8EBCEAD4/Calc_training_full_roi_images/'
-        #mask = cv2.imread(path_for_mask+maskfile[0])
-        full_path = path_for_mask+another+'.png'
-        print("This is full Path "+full_path)
-        mask = cv2.imread(full_path)
+        if(prefix == 'Calc-Test'):
+            path_for_mask = '/media/kazzastic/C08EBCFB8EBCEAD4/Calc_test_full_roi_images/'
+            #mask = cv2.imread(path_for_mask+maskfile[0])
+            full_path = path_for_mask+another+'.png'
+            print("This is full Path "+full_path)
+            mask = cv2.imread(full_path)
+        else:
+            path_for_mask = '/media/kazzastic/C08EBCFB8EBCEAD4/Calc_training_full_roi_images/'
+            #mask = cv2.imread(path_for_mask+maskfile[0])
+            full_path = path_for_mask+another+'.png'
+            print("This is full Path "+full_path)
+            mask = cv2.imread(full_path)
         # If grayscale. Convert to RGB for consistency.
         #if mask.ndim != 3:
         #    mask = skimage.color.gray2rgb(mask)
@@ -273,7 +286,7 @@ dataset_val.prepare()
 #Train dataset
 dataset_train = BreastTumorsDataset()
 
-dataset_train.load_dataset(class_file1=os.path.join('../csv', 'calc_case_description_test_set.csv'),                           image_dir1=os.path.join('/media/kazzastic/C08EBCFB8EBCEAD4', 'Calc_training_full_mammogram_images'),                           mask_dir1=os.path.join('/media/kazzastic/C08EBCFB8EBCEAD4', 'Calc_training_full_roi_images'))
+dataset_train.load_dataset(class_file1=os.path.join('../csv', 'calc_case_description_train_set.csv'),                           image_dir1=os.path.join('/media/kazzastic/C08EBCFB8EBCEAD4', 'Calc_training_full_mammogram_images'),                           mask_dir1=os.path.join('/media/kazzastic/C08EBCFB8EBCEAD4', 'Calc_training_full_roi_images'))
 
 
 dataset_train.prepare()
@@ -285,7 +298,7 @@ dataset_train.prepare()
 #Train dataset
 dataset_val = BreastTumorsDataset()
 
-dataset_val.load_dataset(class_file1=os.path.join('../csv', 'calc_case_description_test_set.csv'),                           image_dir1=os.path.join('/media/kazzastic/C08EBCFB8EBCEAD4', 'Calc_training_full_mammogram_images'),                           mask_dir1=os.path.join('/media/kazzastic/C08EBCFB8EBCEAD4', 'Calc_training_full_roi_images'))
+dataset_val.load_dataset(class_file1=os.path.join('../csv', 'calc_case_description_test_set.csv'),                           image_dir1=os.path.join('/media/kazzastic/C08EBCFB8EBCEAD4', 'Calc_test_full_mammogram_images'),                           mask_dir1=os.path.join('/media/kazzastic/C08EBCFB8EBCEAD4', 'Calc_test_full_roi_images'))
 
 
 dataset_val.prepare()
@@ -332,15 +345,15 @@ elif init_with == "last":
 
 model.train(dataset_train, dataset_val, 
             learning_rate=config.LEARNING_RATE, 
-            epochs=1, 
+            epochs=3, 
             layers='heads')
 
 model.train(dataset_train, dataset_val, 
             learning_rate=config.LEARNING_RATE / 10,
-            epochs=2, 
+            epochs=4, 
             layers="all")
 
-model_path = os.path.join(MODEL_DIR, "mask_rcnn_shapes.h5")
+model_path = os.path.join(MODEL_DIR, "mask_rcnn_shapes_new.h5")
 model.keras_model.save_weights(model_path)
 
 # ## Detection

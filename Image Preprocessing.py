@@ -71,9 +71,9 @@ from PIL import Image
 
 np.random.seed(1234)
 
-PATH_TO_FILES = '/media/kazzastic/C08EBCFB8EBCEAD4/Mammogram_sorted/calc-train/'
-PATH_TO_ROI = '/media/kazzastic/C08EBCFB8EBCEAD4/ROI_sorted/calc-train/'
-PATH_TO_ROI_CSV_LABELS = 'csv/calc_case_description_train_set.csv'
+PATH_TO_FILES = '/media/kazzastic/C08EBCFB8EBCEAD4/Mammogram_sorted/calc-test/'
+PATH_TO_ROI = '/media/kazzastic/C08EBCFB8EBCEAD4/ROI_sorted/calc-test/'
+PATH_TO_ROI_CSV_LABELS = 'csv/calc_case_description_test_set.csv'
 
 CALC_TARGET_RESIZE = np.array([2750, 1500])
 MASS_TARGET_RESIZE = np.array([1100, 600])
@@ -125,7 +125,7 @@ def get_labels(path_to_csv):
         a data frame containing the file_name (as an index) and the pathology.  
     '''
     df = pd.read_csv(path_to_csv)
-    df['file_name'] = 'Calc-Training_' + df['patient_id'] + '_' + df['left or right breast'] + \
+    df['file_name'] = 'Calc-Test_' + df['patient_id'] + '_' + df['left or right breast'] + \
         '_' + df['image view'] + '_' + \
         df['abnormality id'].astype(str) + '_mask.png'
     df = df[['file_name', 'pathology']]
@@ -286,17 +286,17 @@ def save_patches(zipped_patches, label, save_file_name):
 
         elif patch[1].mean() > 0:  # If this is in the tumor
             if label == 'MALIGNANT':
-                save_path_memmogram = '/media/kazzastic/C08EBCFB8EBCEAD4/calc-train-npy/patches/calcification/malignant'
-                save_path_roi = '/media/kazzastic/C08EBCFB8EBCEAD4/calc-train-npy/patches/calcification/malignant-roi'
+                save_path_memmogram = '/media/kazzastic/C08EBCFB8EBCEAD4/calc-test-npy/patches/calcification/malignant'
+                save_path_roi = '/media/kazzastic/C08EBCFB8EBCEAD4/calc-test-npy/patches/calcification/malignant-roi'
             elif label == 'BENIGN':
-                save_path_memmogram = '/media/kazzastic/C08EBCFB8EBCEAD4/calc-train-npy/patches/calcification/benign'
-                save_path_roi = '/media/kazzastic/C08EBCFB8EBCEAD4/calc-train-npy/patches/calcification/benign-roi'
+                save_path_memmogram = '/media/kazzastic/C08EBCFB8EBCEAD4/calc-test-npy/patches/calcification/benign'
+                save_path_roi = '/media/kazzastic/C08EBCFB8EBCEAD4/calc-test-npy/patches/calcification/benign-roi'
             else:
-                save_path_memmogram = '/media/kazzastic/C08EBCFB8EBCEAD4/calc-train-npy/patches/calcification/benign_no_callback'
-                save_path_roi = '/media/kazzastic/C08EBCFB8EBCEAD4/calc-train-npy/patches/calcification/benign_no_callback-roi'
+                save_path_memmogram = '/media/kazzastic/C08EBCFB8EBCEAD4/calc-test-npy/patches/calcification/benign_no_callback'
+                save_path_roi = '/media/kazzastic/C08EBCFB8EBCEAD4/calc-test-npy/patches/calcification/benign_no_callback-roi'
         else:  # Not in the tumor
-            save_path_memmogram = '/media/kazzastic/C08EBCFB8EBCEAD4/calc-train-npy/patches/calcification/no_tumor'
-            save_path_roi = '/media/kazzastic/C08EBCFB8EBCEAD4/calc-train-npy/patches/calcification/no_tumor-roi'
+            save_path_memmogram = '/media/kazzastic/C08EBCFB8EBCEAD4/calc-test-npy/patches/calcification/no_tumor'
+            save_path_roi = '/media/kazzastic/C08EBCFB8EBCEAD4/calc-test-npy/patches/calcification/no_tumor-roi'
 
         file_name = save_file_name + "_" + str(number)  # + ".png"
 

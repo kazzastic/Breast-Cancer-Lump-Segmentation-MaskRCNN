@@ -4,7 +4,7 @@ import cv2
 import numpy  as np
 from multiprocessing import Pool 
 
-TRAIN_PATH = '/media/kazzastic/C08EBCFB8EBCEAD4/new_data_roi/patches/calcification/'
+TRAIN_PATH = '/media/kazzastic/C08EBCFB8EBCEAD4/calc-test-npy/patches/calcification/'
 #TEST_PATH = '/media/kazzastic/C08EBCFB8EBCEAD4/data/patches/calcification'
 
 NEW_TRAIN_PATH = '/media/kazzastic/C08EBCFB8EBCEAD4/fin_data/patches/calcification/'
@@ -46,7 +46,7 @@ def save_files(IN_PATH, img_type, OUT_PATH, file_type):
         path = IN_PATH + img_type + '/' + file
         try:
             img = np.load(path)
-            #img = normalize(img)
+            img = normalize(img)
         except:
             errors += 1
             continue
@@ -62,14 +62,14 @@ def save_files(IN_PATH, img_type, OUT_PATH, file_type):
 
 
 if __name__ == '__main__':
-#    save_files(TRAIN_PATH, 'no_tumor','/home/kazzastic/Videos/fin_data/patches/calcification/', '')
-#    save_files(TRAIN_PATH, 'benign','/home/kazzastic/Videos/fin_data/patches/calcification/', '')
-#    save_files(TRAIN_PATH, 'benign_no_callback','/home/kazzastic/Videos/fin_data/patches/calcification/', '')
-#    save_files(TRAIN_PATH, 'malignant','/home/kazzastic/Videos/fin_data/patches/calcification/', '')
-    
-    save_files(TRAIN_PATH, 'no_tumor-roi','/media/kazzastic/C08EBCFB8EBCEAD4/fin_data/patches/calcification/', '')
-    save_files(TRAIN_PATH, 'benign-roi','/media/kazzastic/C08EBCFB8EBCEAD4/fin_data/patches/calcification/', '')
-    save_files(TRAIN_PATH, 'benign_no_callback-roi','/media/kazzastic/C08EBCFB8EBCEAD4/fin_data/patches/calcification/', '')
+#    save_files(TRAIN_PATH, 'no_tumor','/media/kazzastic/C08EBCFB8EBCEAD4/fin_data/patches/calcification/', '')
+#    save_files(TRAIN_PATH, 'benign','/media/kazzastic/C08EBCFB8EBCEAD4/fin_data/patches/calcification/', '')
+#    save_files(TRAIN_PATH, 'benign_no_callback','/media/kazzastic/C08EBCFB8EBCEAD4/fin_data/patches/calcification/', '')
+    save_files(TRAIN_PATH, 'malignant','/media/kazzastic/C08EBCFB8EBCEAD4/fin_data/patches/calcification/', '')
+#    
+#    save_files(TRAIN_PATH, 'no_tumor-roi','/media/kazzastic/C08EBCFB8EBCEAD4/fin_data/patches/calcification/', '')
+#    save_files(TRAIN_PATH, 'benign-roi','/media/kazzastic/C08EBCFB8EBCEAD4/fin_data/patches/calcification/', '')
+#    save_files(TRAIN_PATH, 'benign_no_callback-roi','/media/kazzastic/C08EBCFB8EBCEAD4/fin_data/patches/calcification/', '')
     save_files(TRAIN_PATH, 'malignant-roi','/media/kazzastic/C08EBCFB8EBCEAD4/fin_data/patches/calcification/', '')
 
     #save_files(TEST_PATH, 'no_tumor','/mnt/disks/patches/calcifications/', 'test')

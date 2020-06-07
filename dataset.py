@@ -57,5 +57,5 @@ def dataset_folder_mammogram(dataset_folder, new_dataset_folder):
         
 one = '/media/kazzastic/C08EBCFB8EBCEAD4/fin_data/patches/calcification/'
 folders = [one+'benign-roi/',one+'benign_no_callback-roi/', one+'malignant-roi/', one+'no_tumor-roi/']
-new_folder = '/media/kazzastic/C08EBCFB8EBCEAD4/Calc_training_full_roi_images/'
+new_folder = '/media/kazzastic/C08EBCFB8EBCEAD4/Calc_test_full_roi_images/'
 dataset_folder_mammogram(folders, new_folder)
