@@ -86,18 +86,18 @@ class BreastTumorsConfig(Config):
 
     # Reduce training ROIs per image because the images are small and have
     # few objects. Aim to allow ROI sampling to pick 33% positive ROIs.
-    TRAIN_ROIS_PER_IMAGE = 32
+    TRAIN_ROIS_PER_IMAGE = 10
 
     # Use a small epoch since the data is simple
     STEPS_PER_EPOCH = 2831
     #STEPS_PER_EPOCH = 2205
-    #STEPS_PER_EPOCH = 20
+    #STEPS_PER_EPOCH = 256
 
     # use small validation steps since the epoch is small
     VALIDATION_STPES = 626
-    #VALIDATION_STPES = 63
+    #VALIDATION_STPES = 128
     
-    USE_MINI_MASK=False
+    USE_MINI_MASK=True
     
 config = BreastTumorsConfig()
 #config.print()
@@ -170,7 +170,7 @@ class BreastTumorsDataset(utils.Dataset):
         """Load the specified image and return a [H,W,3] Numpy array.
         """
         # Load image
-        print(self.image_info[image_id]['path'])
+        #print(self.image_info[image_id]['path'])
         image = cv2.imread(self.image_info[image_id]['path'])
         # If grayscale. Convert to RGB for consistency.
         if image.ndim != 3:
@@ -186,7 +186,7 @@ class BreastTumorsDataset(utils.Dataset):
         imagefilename, ext = os.path.splitext(imagefile)
         another = imagefilename
         var = imagefilename
-        print("Imagefile:{}".format(var))
+        #print("Imagefile:{}".format(var))
         if(CC in var):
             var, _ = var.split('CC')
             var+='CC'
@@ -198,7 +198,7 @@ class BreastTumorsDataset(utils.Dataset):
             
         temp = var
         var_4_pathology = var
-        print("Imagefile But Better:{}".format(temp))
+        #print("Imagefile But Better:{}".format(temp))
         prefix, patient_id1, patient_id2, side, viewsuffix = temp.split('_')
         #view, abn, angle, patch_width, patch_height, hstride, vstride, row, column, pathology = viewsuffix.split('-')
         #patient_id = patient_id1 + '_' + patient_id2        
@@ -220,30 +220,30 @@ class BreastTumorsDataset(utils.Dataset):
         #            pathology + ext
         
         #maskfile = os.path.join(self.mask_dir1,prefix+'_'+patient_id1+'_'+patient_id2+'_'+side+'_'+viewsuffix+'_mask.png')
-        if(prefix=='Calc-Test'):
-            csv = pd.read_csv('../csv/calc_case_description_test_set.csv')
+        if(prefix=='Calc-Test' or prefix=='Mass-Test'):
+            csv = pd.read_csv('../../csv/calc_case_description_test_set.csv')
             maskfile = csv[csv['image file path'].str.contains(temp)]
             maskfile = maskfile['ROI mask file path'].to_frame().iloc[0][0].split('/')
             maskfile[0]+='_mask.png'
-            print("Maskfile:{}".format(maskfile[0]))
+            #print("Maskfile:{}".format(maskfile[0]))
         else:
-            csv = pd.read_csv('../csv/calc_case_description_train_set.csv')
+            csv = pd.read_csv('../../csv/calc_case_description_train_set.csv')
             maskfile = csv[csv['image file path'].str.contains(temp)]
             maskfile = maskfile['ROI mask file path'].to_frame().iloc[0][0].split('/')
             maskfile[0]+='_mask.png'
-            print("Maskfile:{}".format(maskfile[0]))
+            #print("Maskfile:{}".format(maskfile[0]))
         # Load mask
-        if(prefix == 'Calc-Test'):
-            path_for_mask = '/media/kazzastic/C08EBCFB8EBCEAD4/Calc_test_full_roi_images/'
+        if(prefix == 'Calc-Test' or prefix=='Mass-Test'):
+            path_for_mask = '/media/kazzastic/C08EBCFB8EBCEAD4/test_roi/'
             #mask = cv2.imread(path_for_mask+maskfile[0])
             full_path = path_for_mask+another+'.png'
-            print("This is full Path "+full_path)
+            #print("This is full Path "+full_path)
             mask = cv2.imread(full_path)
         else:
-            path_for_mask = '/media/kazzastic/C08EBCFB8EBCEAD4/Calc_training_full_roi_images/'
+            path_for_mask = '/media/kazzastic/C08EBCFB8EBCEAD4/train_roi/'
             #mask = cv2.imread(path_for_mask+maskfile[0])
             full_path = path_for_mask+another+'.png'
-            print("This is full Path "+full_path)
+            #print("This is full Path "+full_path)
             mask = cv2.imread(full_path)
         # If grayscale. Convert to RGB for consistency.
         #if mask.ndim != 3:
@@ -286,7 +286,7 @@ dataset_val.prepare()
 #Train dataset
 dataset_train = BreastTumorsDataset()
 
-dataset_train.load_dataset(class_file1=os.path.join('../csv', 'calc_case_description_train_set.csv'),                           image_dir1=os.path.join('/media/kazzastic/C08EBCFB8EBCEAD4', 'Calc_training_full_mammogram_images'),                           mask_dir1=os.path.join('/media/kazzastic/C08EBCFB8EBCEAD4', 'Calc_training_full_roi_images'))
+dataset_train.load_dataset(class_file1=os.path.join('../../csv', 'calc_case_description_train_set.csv'),                           image_dir1=os.path.join('/media/kazzastic/C08EBCFB8EBCEAD4', 'train_mam'),                           mask_dir1=os.path.join('/media/kazzastic/C08EBCFB8EBCEAD4', 'train_roi'))
 
 
 dataset_train.prepare()
@@ -298,7 +298,7 @@ dataset_train.prepare()
 #Train dataset
 dataset_val = BreastTumorsDataset()
 
-dataset_val.load_dataset(class_file1=os.path.join('../csv', 'calc_case_description_test_set.csv'),                           image_dir1=os.path.join('/media/kazzastic/C08EBCFB8EBCEAD4', 'Calc_test_full_mammogram_images'),                           mask_dir1=os.path.join('/media/kazzastic/C08EBCFB8EBCEAD4', 'Calc_test_full_roi_images'))
+dataset_val.load_dataset(class_file1=os.path.join('../../csv', 'calc_case_description_test_set.csv'),                           image_dir1=os.path.join('/media/kazzastic/C08EBCFB8EBCEAD4', 'test_mam'),                           mask_dir1=os.path.join('/media/kazzastic/C08EBCFB8EBCEAD4', 'test_roi'))
 
 
 dataset_val.prepare()
@@ -345,15 +345,15 @@ elif init_with == "last":
 
 model.train(dataset_train, dataset_val, 
             learning_rate=config.LEARNING_RATE, 
-            epochs=3, 
+            epochs=10, 
             layers='heads')
 
 model.train(dataset_train, dataset_val, 
             learning_rate=config.LEARNING_RATE / 10,
-            epochs=4, 
+            epochs=20, 
             layers="all")
 
-model_path = os.path.join(MODEL_DIR, "mask_rcnn_shapes_new.h5")
+model_path = os.path.join(MODEL_DIR, "max_with_full_dataset.h5")
 model.keras_model.save_weights(model_path)
 
 # ## Detection
