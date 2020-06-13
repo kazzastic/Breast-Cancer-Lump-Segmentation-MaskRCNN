@@ -54,8 +54,10 @@ def dataset_folder_mammogram(dataset_folder, new_dataset_folder):
         shutil.copy(arr[i], new_dataset_folder)
         count+=1
         print("File Count {}".format(count))
-        
-one = '/media/kazzastic/C08EBCFB8EBCEAD4/fin_data/patches/calcification/'
-folders = [one+'benign-roi/',one+'benign_no_callback-roi/', one+'malignant-roi/', one+'no_tumor-roi/']
-new_folder = '/media/kazzastic/C08EBCFB8EBCEAD4/Calc_test_full_roi_images/'
+
+# Right Now I am doing 
+#TEST ROI
+one = '/media/kazzastic/C08EBCFB8EBCEAD4/'
+folders = [one+'Calc_test_full_mammogram_images/',one+'Mass_test_full_mammogram_images/']
+new_folder = '/media/kazzastic/C08EBCFB8EBCEAD4/test_mam/'
 dataset_folder_mammogram(folders, new_folder)

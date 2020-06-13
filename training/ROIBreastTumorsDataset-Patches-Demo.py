@@ -97,7 +97,7 @@ class BreastTumorsConfig(Config):
     VALIDATION_STPES = 626
     #VALIDATION_STPES = 128
     
-    USE_MINI_MASK=True
+    USE_MINI_MASK=False
     
 config = BreastTumorsConfig()
 #config.print()
@@ -345,15 +345,15 @@ elif init_with == "last":
 
 model.train(dataset_train, dataset_val, 
             learning_rate=config.LEARNING_RATE, 
-            epochs=10, 
+            epochs=30, 
             layers='heads')
 
 model.train(dataset_train, dataset_val, 
             learning_rate=config.LEARNING_RATE / 10,
-            epochs=20, 
+            epochs=60, 
             layers="all")
 
-model_path = os.path.join(MODEL_DIR, "max_with_full_dataset.h5")
+model_path = os.path.join(MODEL_DIR, "NEW_with_full_dataset.h5")
 model.keras_model.save_weights(model_path)
 
 # ## Detection

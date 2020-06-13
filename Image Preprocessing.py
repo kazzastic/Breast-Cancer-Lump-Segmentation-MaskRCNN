@@ -71,9 +71,9 @@ from PIL import Image
 
 np.random.seed(1234)
 
-PATH_TO_FILES = '/media/kazzastic/C08EBCFB8EBCEAD4/Mammogram_sorted/calc-test/'
-PATH_TO_ROI = '/media/kazzastic/C08EBCFB8EBCEAD4/ROI_sorted/calc-test/'
-PATH_TO_ROI_CSV_LABELS = 'csv/calc_case_description_test_set.csv'
+PATH_TO_FILES = '/media/kazzastic/C08EBCFB8EBCEAD4/Mammogram_sorted/mass-test/'
+PATH_TO_ROI = '/media/kazzastic/C08EBCFB8EBCEAD4/ROI_sorted/mass-test/'
+PATH_TO_ROI_CSV_LABELS = 'csv/mass_case_description_test_set.csv'
 
 CALC_TARGET_RESIZE = np.array([2750, 1500])
 MASS_TARGET_RESIZE = np.array([1100, 600])
@@ -125,7 +125,7 @@ def get_labels(path_to_csv):
         a data frame containing the file_name (as an index) and the pathology.  
     '''
     df = pd.read_csv(path_to_csv)
-    df['file_name'] = 'Calc-Test_' + df['patient_id'] + '_' + df['left or right breast'] + \
+    df['file_name'] = 'Mass-Test_' + df['patient_id'] + '_' + df['left or right breast'] + \
         '_' + df['image view'] + '_' + \
         df['abnormality id'].astype(str) + '_mask.png'
     df = df[['file_name', 'pathology']]
@@ -182,12 +182,15 @@ def rotate_image(im, rotation_angle):
     return rotate(im, rotation_angle)
 
 
-def normalize(im):
-    '''
-    Normalize to between 0 and 255
-    '''
-    im_normalized = (255*(im - np.max(im))/-np.ptp(im))
-    return im_normalized
+#def normalize(im):
+#    '''
+#    Normalize to between 0 and 255
+#    '''
+#    im_normalized = (255*(im - np.max(im))/-np.ptp(im))
+#    return im_normalized
+def normalize(img):
+    normalized_img = ((img - np.min(img))/(np.max(img) - np.min(img)))*255
+    return normalized_img
 
 ###################################################################
 # Get patches
@@ -286,30 +289,31 @@ def save_patches(zipped_patches, label, save_file_name):
 
         elif patch[1].mean() > 0:  # If this is in the tumor
             if label == 'MALIGNANT':
-                save_path_memmogram = '/media/kazzastic/C08EBCFB8EBCEAD4/calc-test-npy/patches/calcification/malignant'
-                save_path_roi = '/media/kazzastic/C08EBCFB8EBCEAD4/calc-test-npy/patches/calcification/malignant-roi'
+                save_path_memmogram = '/media/kazzastic/C08EBCFB8EBCEAD4/Mass_test_full_mammogram_images'
+                save_path_roi = '/media/kazzastic/C08EBCFB8EBCEAD4/Mass_test_full_roi_images'
             elif label == 'BENIGN':
-                save_path_memmogram = '/media/kazzastic/C08EBCFB8EBCEAD4/calc-test-npy/patches/calcification/benign'
-                save_path_roi = '/media/kazzastic/C08EBCFB8EBCEAD4/calc-test-npy/patches/calcification/benign-roi'
+                save_path_memmogram = '/media/kazzastic/C08EBCFB8EBCEAD4/Mass_test_full_mammogram_images'
+                save_path_roi = '/media/kazzastic/C08EBCFB8EBCEAD4/Mass_test_full_roi_images'
             else:
-                save_path_memmogram = '/media/kazzastic/C08EBCFB8EBCEAD4/calc-test-npy/patches/calcification/benign_no_callback'
-                save_path_roi = '/media/kazzastic/C08EBCFB8EBCEAD4/calc-test-npy/patches/calcification/benign_no_callback-roi'
+                save_path_memmogram = '/media/kazzastic/C08EBCFB8EBCEAD4/Mass_test_full_mammogram_images'
+                save_path_roi = '/media/kazzastic/C08EBCFB8EBCEAD4/Mass_test_full_roi_images'
         else:  # Not in the tumor
-            save_path_memmogram = '/media/kazzastic/C08EBCFB8EBCEAD4/calc-test-npy/patches/calcification/no_tumor'
-            save_path_roi = '/media/kazzastic/C08EBCFB8EBCEAD4/calc-test-npy/patches/calcification/no_tumor-roi'
+            save_path_memmogram = '/media/kazzastic/C08EBCFB8EBCEAD4/Mass_test_full_mammogram_images'
+            save_path_roi = '/media/kazzastic/C08EBCFB8EBCEAD4/Mass_test_full_roi_images'
 
-        file_name = save_file_name + "_" + str(number)  # + ".png"
+        file_name = save_file_name + "_" + str(number)   + ".png"
 
         # try:
         ###############
         # Save Original
         ###############
 
-        np.save(os.path.join(save_path_memmogram,
-                             file_name), patch[0])
+        #np.save(os.path.join(save_path_memmogram,
+        #                     file_name), patch[0])
         # saving roi
-        np.save(os.path.join(save_path_roi, file_name), patch[1])
-        #cv2.imwrite(os.path.join(save_path_memmogram, file_name), patch[0], [cv2.IMWRITE_PNG_COMPRESSION, 0])
+        #np.save(os.path.join(save_path_roi, file_name), patch[1])
+        cv2.imwrite(os.path.join(save_path_memmogram, file_name), normalize(patch[0]), [cv2.IMWRITE_PNG_COMPRESSION, 0])
+        cv2.imwrite(os.path.join(save_path_roi, file_name), normalize(patch[1]), [cv2.IMWRITE_PNG_COMPRESSION, 0])
         num_original_memmogram += 1
         num_original_roi += 1
 
@@ -321,14 +325,15 @@ def save_patches(zipped_patches, label, save_file_name):
         rotation_angle = np.random.randint(low=0, high=MAX_ROTATE)
         im = rotate_image(patch[0], rotation_angle)
         file_name = save_file_name + \
-            "_" + "ROTATE_" + str(number)  # + "
-        np.save(os.path.join(save_path_memmogram, file_name), im)
-
+            "_" + "ROTATE_" + str(number)   + ".png"
+        #np.save(os.path.join(save_path_memmogram, file_name), im)
+        cv2.imwrite(os.path.join(save_path_memmogram, file_name), normalize(im), [cv2.IMWRITE_PNG_COMPRESSION, 0])
+        
         # rotation for roi
         rotation_angle = np.random.randint(low=0, high=MAX_ROTATE)
         im = rotate_image(patch[1], rotation_angle)
-        np.save(os.path.join(save_path_roi, file_name), im)
-
+        #np.save(os.path.join(save_path_roi, file_name), im)
+        cv2.imwrite(os.path.join(save_path_roi, file_name), normalize(im), [cv2.IMWRITE_PNG_COMPRESSION, 0])
         #cv2.imwrite(os.path.join(save_path_memmogram, file_name), im, [cv2.IMWRITE_PNG_COMPRESSION, 0])
         num_rotate_memmogram += 1
         num_rotate_roi += 1
@@ -340,14 +345,14 @@ def save_patches(zipped_patches, label, save_file_name):
         # for memmogram
         im = np.fliplr(patch[0])
         file_name = save_file_name + \
-            "_" + "FLIP_" + str(number)  # + ".png"
-        np.save(os.path.join(save_path_memmogram, file_name), im)
-        #cv2.imwrite(os.path.join(save_path_memmogram, file_name), im, [cv2.IMWRITE_PNG_COMPRESSION, 0])
+            "_" + "FLIP_" + str(number)   + ".png"
+        #np.save(os.path.join(save_path_memmogram, file_name), im)
+        cv2.imwrite(os.path.join(save_path_memmogram, file_name), normalize(im), [cv2.IMWRITE_PNG_COMPRESSION, 0])
 
         # for roi
         im = np.fliplr(patch[1])
-        np.save(os.path.join(save_path_roi, file_name), im)
-
+        #np.save(os.path.join(save_path_roi, file_name), im)
+        cv2.imwrite(os.path.join(save_path_roi, file_name), normalize(im), [cv2.IMWRITE_PNG_COMPRESSION, 0])
         num_flip_memmogram += 1
         num_flip_roi += 1
 
