@@ -2265,7 +2265,24 @@ class MaskRCNN():
             self.config.NAME.lower()))
         self.checkpoint_path = self.checkpoint_path.replace(
             "*epoch*", "{epoch:04d}")
-
+        
+    def schedular(self, epoch):
+        
+        rate = 0.001
+        rate_10 = rate/10
+        rate_10_10 = rate_10/10
+        first, second, third = 20, 40, 60
+        if(epoch <= first):
+            K.set_value(self.keras_model.optimizer.lr, rate)
+            print(K.get_value(self.keras_model.optimizer.lr))
+        elif(epoch > first and epoch <= second):
+            K.set_value(self.keras_model.optimizer.lr, rate_10)
+            print(K.get_value(self.keras_model.optimizer.lr))
+        elif(epoch > second and epoch <= third):
+            K.set_value(self.keras_model.optimizer.lr, rate_10_10)
+            print(K.get_value(self.keras_model.optimizer.lr))
+            
+        return K.get_value(self.keras_model.optimizer.lr)
     def train(self, train_dataset, val_dataset, learning_rate, epochs, layers,
               augmentation=None):
         """Train the model.
@@ -2317,13 +2334,17 @@ class MaskRCNN():
                                          batch_size=self.config.BATCH_SIZE)
         val_generator = DataGenerator(val_dataset, self.config, shuffle=True,
                                        batch_size=self.config.BATCH_SIZE)
-
+        from keras.callbacks import LearningRateScheduler
+        change_lr = LearningRateScheduler(self.schedular)
         # Callbacks
         callbacks = [
             keras.callbacks.TensorBoard(log_dir=self.log_dir,
-                                        histogram_freq=0, write_graph=True, write_images=False),
+                                        histogram_freq=0, write_graph=True, write_images=True),
             keras.callbacks.ModelCheckpoint(self.checkpoint_path,
-                                            verbose=0, save_weights_only=True),
+                                            verbose=1, save_weights_only=True, save_best_only=True),
+            #keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, verbose=1)
+            change_lr
+            
         ]
 
         # Train

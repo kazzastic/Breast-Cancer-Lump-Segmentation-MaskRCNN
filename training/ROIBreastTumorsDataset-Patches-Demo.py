@@ -37,7 +37,7 @@ ROOT_DIR = os.getcwd()
 MODEL_DIR = os.path.join(ROOT_DIR, "logs")
 
 # Path to COCO trained weights
-COCO_MODEL_PATH = os.path.join(ROOT_DIR, "mask_rcnn_balloon.h5")
+COCO_MODEL_PATH = os.path.join(ROOT_DIR, "mask_rcnn_coco.h5")
 
 # For searching in the string 
 CC = 'CC'
@@ -64,7 +64,7 @@ class BreastTumorsConfig(Config):
     to the toy tumors dataset.
     """
     # Give the configuration a recognizable name
-    NAME = "roi_breast_tumors_patches1024_NR"
+    NAME = "Breast"
 
     # Train on 1 GPU and 8 images per GPU. We can put multiple images on each
     # GPU because the images are small. Batch size is 8 (GPUs * images/GPU).
@@ -86,16 +86,16 @@ class BreastTumorsConfig(Config):
 
     # Reduce training ROIs per image because the images are small and have
     # few objects. Aim to allow ROI sampling to pick 33% positive ROIs.
-    TRAIN_ROIS_PER_IMAGE = 10
+    TRAIN_ROIS_PER_IMAGE = 100
 
     # Use a small epoch since the data is simple
-    STEPS_PER_EPOCH = 2831
+    #STEPS_PER_EPOCH = 2831
     #STEPS_PER_EPOCH = 2205
-    #STEPS_PER_EPOCH = 256
+    STEPS_PER_EPOCH = 250
 
     # use small validation steps since the epoch is small
-    VALIDATION_STPES = 626
-    #VALIDATION_STPES = 128
+    #VALIDATION_STPES = 626
+    VALIDATION_STPES = 13
     
     USE_MINI_MASK=False
     
@@ -333,8 +333,7 @@ elif init_with == "coco":
     # are different due to the different number of classes
     # See README for instructions to download the COCO weights
     model.load_weights(COCO_MODEL_PATH, by_name=True,
-                       exclude=["mrcnn_class_logits", "mrcnn_bbox_fc", 
-                                "mrcnn_bbox", "mrcnn_mask"])
+                       exclude=["mrcnn_class_logits", "mrcnn_bbox_fc", "mrcnn_bbox", "mrcnn_mask"])
 elif init_with == "last":
     # Load the last model you trained and continue training
     model.load_weights(model.find_last(), by_name=True)
@@ -344,16 +343,25 @@ elif init_with == "last":
 
 
 model.train(dataset_train, dataset_val, 
-            learning_rate=config.LEARNING_RATE, 
-            epochs=30, 
-            layers='heads')
-
-model.train(dataset_train, dataset_val, 
-            learning_rate=config.LEARNING_RATE / 10,
+            #learning_rate=config.LEARNING_RATE,
+            learning_rate=0.001, 
             epochs=60, 
-            layers="all")
+            layers='heads')
+#model.train(dataset_train, dataset_val, 
+#            #learning_rate=config.LEARNING_RATE,
+#            learning_rate=0.002, 
+#            epochs=4, 
+#            layers='heads')
 
-model_path = os.path.join(MODEL_DIR, "NEW_with_full_dataset.h5")
+#model.train(dataset_train, dataset_val, 
+#            #learning_rate=config.LEARNING_RATE,
+#            learning_rate=0.0002,
+#            epochs=100, 
+#            layers="all")
+rand_num_for_model = str(np.random.randint(0, 1000))
+rand_model_name  = rand_num_for_model + '_dataset.h5'
+print("Model Name is: ", rand_model_name)
+model_path = os.path.join(MODEL_DIR, rand_model_name)
 model.keras_model.save_weights(model_path)
 
 # ## Detection

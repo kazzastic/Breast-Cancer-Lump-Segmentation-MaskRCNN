@@ -5,3 +5,4 @@ da
 /training/data/
 /training/logs/
 /training/__pycache__/*
+/training/mask_rcnn_coco.h5
