@@ -86,16 +86,16 @@ class BreastTumorsConfig(Config):
 
     # Reduce training ROIs per image because the images are small and have
     # few objects. Aim to allow ROI sampling to pick 33% positive ROIs.
-    TRAIN_ROIS_PER_IMAGE = 100
+    TRAIN_ROIS_PER_IMAGE = 250
 
     # Use a small epoch since the data is simple
     #STEPS_PER_EPOCH = 2831
     #STEPS_PER_EPOCH = 2205
-    STEPS_PER_EPOCH = 250
+    STEPS_PER_EPOCH = 500
 
     # use small validation steps since the epoch is small
     #VALIDATION_STPES = 626
-    VALIDATION_STPES = 13
+    VALIDATION_STPES = 250
     
     USE_MINI_MASK=False
     
@@ -335,18 +335,19 @@ elif init_with == "coco":
     model.load_weights(COCO_MODEL_PATH, by_name=True,
                        exclude=["mrcnn_class_logits", "mrcnn_bbox_fc", "mrcnn_bbox", "mrcnn_mask"])
 elif init_with == "last":
+    LAST_MODEL = os.path.join("/home/kazzastic/Videos/Breast-Cancer-Lump-Segmentation-MaskRCNN/training/logs", "Model1.h5")
     # Load the last model you trained and continue training
-    model.load_weights(model.find_last(), by_name=True)
+    model.load_weights(LAST_MODEL, by_name=True)
 
 
 # In[44]:
 
-
+model.keras_model.summary()
 model.train(dataset_train, dataset_val, 
             #learning_rate=config.LEARNING_RATE,
             learning_rate=0.001, 
-            epochs=60, 
-            layers='heads')
+            epochs=120, 
+            layers='all')
 #model.train(dataset_train, dataset_val, 
 #            #learning_rate=config.LEARNING_RATE,
 #            learning_rate=0.002, 

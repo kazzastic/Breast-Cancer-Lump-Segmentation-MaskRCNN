@@ -2271,7 +2271,7 @@ class MaskRCNN():
         rate = 0.001
         rate_10 = rate/10
         rate_10_10 = rate_10/10
-        first, second, third = 20, 40, 60
+        first, second, third = 40, 80, 120
         if(epoch <= first):
             K.set_value(self.keras_model.optimizer.lr, rate)
             print(K.get_value(self.keras_model.optimizer.lr))
@@ -2279,7 +2279,7 @@ class MaskRCNN():
             K.set_value(self.keras_model.optimizer.lr, rate_10)
             print(K.get_value(self.keras_model.optimizer.lr))
         elif(epoch > second and epoch <= third):
-            K.set_value(self.keras_model.optimizer.lr, rate_10_10)
+            K.set_value(self.keras_model.optimizer.lr, rate_10)
             print(K.get_value(self.keras_model.optimizer.lr))
             
         return K.get_value(self.keras_model.optimizer.lr)
@@ -2339,7 +2339,7 @@ class MaskRCNN():
         # Callbacks
         callbacks = [
             keras.callbacks.TensorBoard(log_dir=self.log_dir,
-                                        histogram_freq=0, write_graph=True, write_images=True),
+                                        histogram_freq=0, write_graph=True, write_images=False),
             keras.callbacks.ModelCheckpoint(self.checkpoint_path,
                                             verbose=1, save_weights_only=True, save_best_only=True),
             #keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, verbose=1)

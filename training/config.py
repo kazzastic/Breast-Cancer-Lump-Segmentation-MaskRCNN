@@ -88,7 +88,7 @@ class Config(object):
 
     # Non-max suppression threshold to filter RPN proposals.
     # You can increase this during training to generate more propsals.
-    RPN_NMS_THRESHOLD = 0.9
+    RPN_NMS_THRESHOLD = 0.7
 
     # How many anchors per image to use for RPN training
     RPN_TRAIN_ANCHORS_PER_IMAGE = 256
@@ -142,7 +142,7 @@ class Config(object):
     TRAIN_ROIS_PER_IMAGE = 33 #32 #200 last training
 
     # Percent of positive ROIs used to train classifier/mask heads
-    ROI_POSITIVE_RATIO = 0.33
+    ROI_POSITIVE_RATIO = 0.50 #0.33
 
     # Pooled ROIs
     POOL_SIZE = 7
