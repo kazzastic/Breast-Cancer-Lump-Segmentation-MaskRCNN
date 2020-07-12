@@ -30,6 +30,7 @@ Train ROI Images = 330
 Layers = heads
 Write any other changes here = none
 
+
 ## Model 4 
 ## not working; REJECTED
 Epoch = 30
@@ -85,24 +86,25 @@ Layers = all
 Write any other changes here = 50% roi ratio 
 
 ## Model 9
-Epoch = 
-Weight Decay = 
-LR = 
-Step Size = 
-Validation step = 
-Train ROI Images = 
-Layers = 
-Write any other changes here = 
+Epoch = 120
+Weight Decay = 0.001 
+LR = 0.001, 0.0001
+Step Size = 500
+Validation step = 50
+Train ROI Images = 200
+Layers = heads
+Write any other changes here = nothing
 
 
 ## Model 10
-Epoch = 
-Weight Decay = 
-LR = 
-Step Size = 
-Validation step = 
-Train ROI Images = 
-Layers = 
+## This failed, maybe after 60 or 80 epoch or maybe 40 epoch I shouldd've lowered the LR
+Epoch = 240
+Weight Decay = 0.001 
+LR = 0.001, 0.0001
+Step Size = 500
+Validation step = 50 
+Train ROI Images = 200
+Layers = heads
 Write any other changes here = 
 
 

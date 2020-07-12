@@ -87,7 +87,7 @@ class Config(object):
     RPN_ANCHOR_STRIDE = 1
 
     # Non-max suppression threshold to filter RPN proposals.
-    # You can increase this during training to generate more propsals.
+    # You can increase this during training to generate more propsals.write this in README
     RPN_NMS_THRESHOLD = 0.7
 
     # How many anchors per image to use for RPN training
@@ -142,7 +142,7 @@ class Config(object):
     TRAIN_ROIS_PER_IMAGE = 33 #32 #200 last training
 
     # Percent of positive ROIs used to train classifier/mask heads
-    ROI_POSITIVE_RATIO = 0.50 #0.33
+    ROI_POSITIVE_RATIO = 0.33
 
     # Pooled ROIs
     POOL_SIZE = 7
@@ -152,14 +152,14 @@ class Config(object):
     # To change this you also need to change the neural network mask branch
     MASK_SHAPE = [28, 28]
 
-    # Maximum number of ground truth instances to use in one image
+    # Maximum number of ground truth instances to use in one image, this was initially 100
     MAX_GT_INSTANCES = 100
 
     # Bounding box refinement standard deviation for RPN and final detections.
     RPN_BBOX_STD_DEV = np.array([0.1, 0.1, 0.2, 0.2])
     BBOX_STD_DEV = np.array([0.1, 0.1, 0.2, 0.2])
 
-    # Max number of final detections
+    # Max number of final detections, initilly it was 100, write this in README
     DETECTION_MAX_INSTANCES = 100
 
     # Minimum probability value to accept a detected instance

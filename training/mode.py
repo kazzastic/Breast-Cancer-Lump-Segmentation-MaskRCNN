@@ -2271,7 +2271,7 @@ class MaskRCNN():
         rate = 0.001
         rate_10 = rate/10
         rate_10_10 = rate_10/10
-        first, second, third = 40, 80, 120
+        first, second, third = 180, 240, 300
         if(epoch <= first):
             K.set_value(self.keras_model.optimizer.lr, rate)
             print(K.get_value(self.keras_model.optimizer.lr))

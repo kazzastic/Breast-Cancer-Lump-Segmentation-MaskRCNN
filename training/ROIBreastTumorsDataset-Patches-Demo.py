@@ -86,7 +86,7 @@ class BreastTumorsConfig(Config):
 
     # Reduce training ROIs per image because the images are small and have
     # few objects. Aim to allow ROI sampling to pick 33% positive ROIs.
-    TRAIN_ROIS_PER_IMAGE = 250
+    TRAIN_ROIS_PER_IMAGE = 200
 
     # Use a small epoch since the data is simple
     #STEPS_PER_EPOCH = 2831
@@ -95,7 +95,7 @@ class BreastTumorsConfig(Config):
 
     # use small validation steps since the epoch is small
     #VALIDATION_STPES = 626
-    VALIDATION_STPES = 250
+    VALIDATION_STPES = 50
     
     USE_MINI_MASK=False
     
@@ -346,8 +346,8 @@ model.keras_model.summary()
 model.train(dataset_train, dataset_val, 
             #learning_rate=config.LEARNING_RATE,
             learning_rate=0.001, 
-            epochs=120, 
-            layers='all')
+            epochs=240, 
+            layers='heads')
 #model.train(dataset_train, dataset_val, 
 #            #learning_rate=config.LEARNING_RATE,
 #            learning_rate=0.002, 
