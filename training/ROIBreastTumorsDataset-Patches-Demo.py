@@ -270,7 +270,7 @@ class BreastTumorsDataset(utils.Dataset):
 
 # In[41]:
 
-
+'''
 #Validation dataset
 dataset_val = BreastTumorsDataset()
 
@@ -278,7 +278,7 @@ dataset_val.load_dataset(class_file1=os.path.join('../csv', 'mass_case_descripti
 
 
 dataset_val.prepare()
-
+'''
 
 # In[42]:
 
@@ -286,7 +286,7 @@ dataset_val.prepare()
 #Train dataset
 dataset_train = BreastTumorsDataset()
 
-dataset_train.load_dataset(class_file1=os.path.join('../csv', 'calc_case_description_train_set.csv'),                           image_dir1=os.path.join('/media/kazzastic/C08EBCFB8EBCEAD4', 'train_mam'),                           mask_dir1=os.path.join('/media/kazzastic/C08EBCFB8EBCEAD4', 'train_roi'))
+dataset_train.load_dataset(class_file1=os.path.join('../csv', 'calc_case_description_train_set.csv'),                           image_dir1=os.path.join('../../dataset/train_mam/', 'train_mam'),                           mask_dir1=os.path.join('../../dataset/train_roi/', 'train_roi'))
 
 
 dataset_train.prepare()
@@ -298,7 +298,7 @@ dataset_train.prepare()
 #Train dataset
 dataset_val = BreastTumorsDataset()
 
-dataset_val.load_dataset(class_file1=os.path.join('../csv', 'calc_case_description_test_set.csv'),                           image_dir1=os.path.join('/media/kazzastic/C08EBCFB8EBCEAD4', 'test_mam'),                           mask_dir1=os.path.join('/media/kazzastic/C08EBCFB8EBCEAD4', 'test_roi'))
+dataset_val.load_dataset(class_file1=os.path.join('../csv', 'calc_case_description_test_set.csv'),                           image_dir1=os.path.join('../../dataset/test_mam/', 'test_mam'),                           mask_dir1=os.path.join('../../dataset/test_roi/', 'test_roi'))
 
 
 dataset_val.prepare()
