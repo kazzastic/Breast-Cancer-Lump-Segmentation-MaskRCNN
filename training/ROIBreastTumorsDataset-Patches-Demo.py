@@ -221,26 +221,26 @@ class BreastTumorsDataset(utils.Dataset):
         
         #maskfile = os.path.join(self.mask_dir1,prefix+'_'+patient_id1+'_'+patient_id2+'_'+side+'_'+viewsuffix+'_mask.png')
         if(prefix=='Calc-Test' or prefix=='Mass-Test'):
-            csv = pd.read_csv('../../csv/calc_case_description_test_set.csv')
+            csv = pd.read_csv('../csv/calc_case_description_test_set.csv')
             maskfile = csv[csv['image file path'].str.contains(temp)]
             maskfile = maskfile['ROI mask file path'].to_frame().iloc[0][0].split('/')
             maskfile[0]+='_mask.png'
             #print("Maskfile:{}".format(maskfile[0]))
         else:
-            csv = pd.read_csv('../../csv/calc_case_description_train_set.csv')
+            csv = pd.read_csv('../csv/calc_case_description_train_set.csv')
             maskfile = csv[csv['image file path'].str.contains(temp)]
             maskfile = maskfile['ROI mask file path'].to_frame().iloc[0][0].split('/')
             maskfile[0]+='_mask.png'
             #print("Maskfile:{}".format(maskfile[0]))
         # Load mask
         if(prefix == 'Calc-Test' or prefix=='Mass-Test'):
-            path_for_mask = '/media/kazzastic/C08EBCFB8EBCEAD4/test_roi/'
+            path_for_mask = '../../dataset/test_roi/test_roi/'
             #mask = cv2.imread(path_for_mask+maskfile[0])
             full_path = path_for_mask+another+'.png'
             #print("This is full Path "+full_path)
             mask = cv2.imread(full_path)
         else:
-            path_for_mask = '/media/kazzastic/C08EBCFB8EBCEAD4/train_roi/'
+            path_for_mask = '../../dataset/train_roi/train_roi/'
             #mask = cv2.imread(path_for_mask+maskfile[0])
             full_path = path_for_mask+another+'.png'
             #print("This is full Path "+full_path)
@@ -274,7 +274,7 @@ class BreastTumorsDataset(utils.Dataset):
 #Validation dataset
 dataset_val = BreastTumorsDataset()
 
-dataset_val.load_dataset(class_file1=os.path.join('data', 'mass_case_description_test_set.csv'),                           image_dir1=os.path.join('data', 'Mass-Test Full Mammogram Patches1024 NR'),                           mask_dir1=os.path.join('data', 'Mass-Test Full ROI Patches1024 NR'))
+dataset_val.load_dataset(class_file1=os.path.join('../csv', 'mass_case_description_test_set.csv'),                           image_dir1=os.path.join('data', 'Mass-Test Full Mammogram Patches1024 NR'),                           mask_dir1=os.path.join('data', 'Mass-Test Full ROI Patches1024 NR'))
 
 
 dataset_val.prepare()
@@ -286,7 +286,7 @@ dataset_val.prepare()
 #Train dataset
 dataset_train = BreastTumorsDataset()
 
-dataset_train.load_dataset(class_file1=os.path.join('../../csv', 'calc_case_description_train_set.csv'),                           image_dir1=os.path.join('/media/kazzastic/C08EBCFB8EBCEAD4', 'train_mam'),                           mask_dir1=os.path.join('/media/kazzastic/C08EBCFB8EBCEAD4', 'train_roi'))
+dataset_train.load_dataset(class_file1=os.path.join('../csv', 'calc_case_description_train_set.csv'),                           image_dir1=os.path.join('/media/kazzastic/C08EBCFB8EBCEAD4', 'train_mam'),                           mask_dir1=os.path.join('/media/kazzastic/C08EBCFB8EBCEAD4', 'train_roi'))
 
 
 dataset_train.prepare()
@@ -298,7 +298,7 @@ dataset_train.prepare()
 #Train dataset
 dataset_val = BreastTumorsDataset()
 
-dataset_val.load_dataset(class_file1=os.path.join('../../csv', 'calc_case_description_test_set.csv'),                           image_dir1=os.path.join('/media/kazzastic/C08EBCFB8EBCEAD4', 'test_mam'),                           mask_dir1=os.path.join('/media/kazzastic/C08EBCFB8EBCEAD4', 'test_roi'))
+dataset_val.load_dataset(class_file1=os.path.join('../csv', 'calc_case_description_test_set.csv'),                           image_dir1=os.path.join('/media/kazzastic/C08EBCFB8EBCEAD4', 'test_mam'),                           mask_dir1=os.path.join('/media/kazzastic/C08EBCFB8EBCEAD4', 'test_roi'))
 
 
 dataset_val.prepare()
@@ -335,7 +335,7 @@ elif init_with == "coco":
     model.load_weights(COCO_MODEL_PATH, by_name=True,
                        exclude=["mrcnn_class_logits", "mrcnn_bbox_fc", "mrcnn_bbox", "mrcnn_mask"])
 elif init_with == "last":
-    LAST_MODEL = os.path.join("/home/kazzastic/Videos/Breast-Cancer-Lump-Segmentation-MaskRCNN/training/logs", "Model1.h5")
+    LAST_MODEL = os.path.join("./logs", "Model1.h5")
     # Load the last model you trained and continue training
     model.load_weights(LAST_MODEL, by_name=True)
 
